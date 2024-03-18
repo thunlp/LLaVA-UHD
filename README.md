@@ -3,6 +3,7 @@
 # LLaVA-UHD
 
 **A Large Multimodal Model Perceiving Any Aspect Ratio and High-Resolution Images**
+</div>
 
 This repository hosts the code, data, and model weight of **LLaVA-UHD**, a novel framework that enables Large Multimodal Models (LMMs) to efficiently perceive images in any aspect ratio and high resolution.
 
