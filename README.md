@@ -14,7 +14,7 @@ and achieves 6.4 accuracy improvement on TextVQA. Moreover, the model can be eff
 
 ## Overview
 
-LLaVA-UHD includes three key components: 
+LLaVA-UHD includes three key components to deal with native-resolution images: 
 
 -  An image modularization strategy that divides native-resolution images into smaller variable-sized
 slices for efficient and extensible encoding.
