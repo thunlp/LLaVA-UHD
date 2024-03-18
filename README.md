@@ -9,8 +9,7 @@ high resolution.
 
 Notably, our model built on LLaVA-1.5 336×336 supports 6 times
 larger (i.e., 672×1088) resolution images using only 94% inference computation,
-and achieves 6.4 accuracy improvement on TextVQA. Moreover, the model can be
-efficiently trained within 23 hours on 8 A100 GPUs (vs. 26 hours of LLaVA-1.5).
+and achieves 6.4 accuracy improvement on TextVQA. Moreover, the model can be efficiently trained in academic settings, within 23 hours on 8 A100 GPUs (vs. 26 hours of LLaVA-1.5).
 
 
 ## Overview
