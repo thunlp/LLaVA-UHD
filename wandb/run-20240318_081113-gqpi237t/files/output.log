@@ -1,0 +1,7 @@
+
+  0%|                                                                                                                                                                                                                                                                               | 0/2181 [00:00<?, ?it/s]Traceback (most recent call last):
+  File "/home/xuruyi/myLLaVa/LLAVA_UHD/llava_uhd/train/llava-uhd/train_mem.py", line 14, in <module>
+    train()
+  File "/home/xuruyi/myLLaVa/LLAVA_UHD/llava_uhd/train/llava-uhd/train.py", line 1007, in train
+    trainer.train()
+  File "/home/xuruyi/miniconda3/envs/newllava/lib/python3.10/site-packages/transformers/trainer.py", line 1539, in train

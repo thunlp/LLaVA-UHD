@@ -1,0 +1,118 @@
+2024-03-18 08:11:14,003 INFO    StreamThr :1229555 [internal.py:wandb_internal():86] W&B internal server running at pid: 1229555, started at: 2024-03-18 08:11:14.001930
+2024-03-18 08:11:14,007 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: status
+2024-03-18 08:11:14,015 INFO    WriterThread:1229555 [datastore.py:open_for_write():85] open: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/run-gqpi237t.wandb
+2024-03-18 08:11:14,018 DEBUG   SenderThread:1229555 [sender.py:send():382] send: header
+2024-03-18 08:11:14,018 DEBUG   SenderThread:1229555 [sender.py:send():382] send: run
+2024-03-18 08:11:14,759 INFO    SenderThread:1229555 [dir_watcher.py:__init__():211] watching files in: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files
+2024-03-18 08:11:14,759 INFO    SenderThread:1229555 [sender.py:_start_run_threads():1136] run started: gqpi237t with start time 1710720674.012883
+2024-03-18 08:11:14,761 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: check_version
+2024-03-18 08:11:14,762 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: check_version
+2024-03-18 08:11:15,004 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: run_start
+2024-03-18 08:11:15,072 DEBUG   HandlerThread:1229555 [system_info.py:__init__():32] System info init
+2024-03-18 08:11:15,072 DEBUG   HandlerThread:1229555 [system_info.py:__init__():47] System info init done
+2024-03-18 08:11:15,072 INFO    HandlerThread:1229555 [system_monitor.py:start():194] Starting system monitor
+2024-03-18 08:11:15,073 INFO    SystemMonitor:1229555 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-03-18 08:11:15,074 INFO    HandlerThread:1229555 [system_monitor.py:probe():214] Collecting system info
+2024-03-18 08:11:15,075 INFO    SystemMonitor:1229555 [interfaces.py:start():190] Started cpu monitoring
+2024-03-18 08:11:15,076 INFO    SystemMonitor:1229555 [interfaces.py:start():190] Started disk monitoring
+2024-03-18 08:11:15,077 INFO    SystemMonitor:1229555 [interfaces.py:start():190] Started gpu monitoring
+2024-03-18 08:11:15,078 INFO    SystemMonitor:1229555 [interfaces.py:start():190] Started memory monitoring
+2024-03-18 08:11:15,079 INFO    SystemMonitor:1229555 [interfaces.py:start():190] Started network monitoring
+2024-03-18 08:11:15,175 DEBUG   HandlerThread:1229555 [system_info.py:probe():196] Probing system
+2024-03-18 08:11:15,178 DEBUG   HandlerThread:1229555 [gitlib.py:_init_repo():56] git repository is invalid
+2024-03-18 08:11:15,178 DEBUG   HandlerThread:1229555 [system_info.py:probe():244] Probing system done
+2024-03-18 08:11:15,178 DEBUG   HandlerThread:1229555 [system_monitor.py:probe():223] {'os': 'Linux-5.4.0-144-generic-x86_64-with-glibc2.31', 'python': '3.10.0', 'heartbeatAt': '2024-03-18T00:11:15.175386', 'startedAt': '2024-03-18T00:11:13.846246', 'docker': None, 'cuda': None, 'args': ('--local_rank=0', '--deepspeed', './scripts/zero2.json', '--model_name_or_path', '/home/xuruyi/vicuna-13b-v1.5', '--version', 'plain', '--data_path', '/home/xuruyi/llava_pretrain_data/blip_laion_cc_sbu_558k.json', '--image_folder', '/home/xuruyi/llava_pretrain_data', '--vision_tower', '/home/xuruyi/clip_model', '--mm_projector_type', 'mlp2x_gelu', '--tune_mm_mlp_adapter', 'True', '--mm_vision_select_layer', '-2', '--mm_use_im_start_end', 'False', '--mm_use_im_patch_token', 'False', '--bf16', 'True', '--output_dir', './checkpoints/llava-v1.5-13b-pretrain', '--num_train_epochs', '1', '--per_device_train_batch_size', '32', '--per_device_eval_batch_size', '4', '--gradient_accumulation_steps', '1', '--evaluation_strategy', 'no', '--save_strategy', 'steps', '--save_steps', '500', '--save_total_limit', '20', '--learning_rate', '1e-3', '--weight_decay', '0.', '--warmup_ratio', '0.03', '--lr_scheduler_type', 'cosine', '--logging_steps', '1', '--tf32', 'True', '--model_max_length', '2048', '--gradient_checkpointing', 'True', '--dataloader_num_workers', '4', '--lazy_preprocess', 'True', '--report_to', 'wandb'), 'state': 'running', 'program': '/home/xuruyi/myLLaVa/LLAVA_UHD/llava_uhd/train/llava-uhd/train_mem.py', 'codePathLocal': 'llava_uhd/train/llava-uhd/train_mem.py', 'codePath': 'llava_uhd/train/llava-uhd/train_mem.py', 'host': 'g3017', 'username': 'xuruyi', 'executable': '/home/xuruyi/miniconda3/envs/newllava/bin/python', 'cpu_count': 64, 'cpu_count_logical': 128, 'cpu_freq': {'current': 1247.1371093749995, 'min': 800.0, 'max': 3400.0}, 'cpu_freq_per_core': [{'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 1754.32, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.548, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3286.53, 'min': 800.0, 'max': 3400.0}, {'current': 801.526, 'min': 800.0, 'max': 3400.0}, {'current': 798.601, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 799.941, 'min': 800.0, 'max': 3400.0}, {'current': 800.613, 'min': 800.0, 'max': 3400.0}, {'current': 896.694, 'min': 800.0, 'max': 3400.0}, {'current': 1700.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 851.913, 'min': 800.0, 'max': 3400.0}, {'current': 801.509, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 2249.333, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.47, 'min': 800.0, 'max': 3400.0}, {'current': 799.83, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.513, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.566, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.507, 'min': 800.0, 'max': 3400.0}, {'current': 799.993, 'min': 800.0, 'max': 3400.0}, {'current': 800.04, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.553, 'min': 800.0, 'max': 3400.0}, {'current': 798.452, 'min': 800.0, 'max': 3400.0}, {'current': 798.484, 'min': 800.0, 'max': 3400.0}, {'current': 798.513, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.409, 'min': 800.0, 'max': 3400.0}, {'current': 801.59, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.431, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 1200.0, 'min': 800.0, 'max': 3400.0}, {'current': 1342.238, 'min': 800.0, 'max': 3400.0}, {'current': 801.431, 'min': 800.0, 'max': 3400.0}, {'current': 800.114, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 1200.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 799.908, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.5, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.496, 'min': 800.0, 'max': 3400.0}, {'current': 801.454, 'min': 800.0, 'max': 3400.0}, {'current': 801.386, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 1795.901, 'min': 800.0, 'max': 3400.0}, {'current': 801.459, 'min': 800.0, 'max': 3400.0}, {'current': 798.553, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.591, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.581, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.498, 'min': 800.0, 'max': 3400.0}, {'current': 801.492, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 854.088, 'min': 800.0, 'max': 3400.0}, {'current': 1700.0, 'min': 800.0, 'max': 3400.0}, {'current': 3288.581, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 899.683, 'min': 800.0, 'max': 3400.0}, {'current': 798.662, 'min': 800.0, 'max': 3400.0}, {'current': 799.847, 'min': 800.0, 'max': 3400.0}, {'current': 1984.114, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.634, 'min': 800.0, 'max': 3400.0}, {'current': 798.573, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.54, 'min': 800.0, 'max': 3400.0}, {'current': 801.415, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.487, 'min': 800.0, 'max': 3400.0}, {'current': 798.534, 'min': 800.0, 'max': 3400.0}, {'current': 801.459, 'min': 800.0, 'max': 3400.0}, {'current': 798.467, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.49, 'min': 800.0, 'max': 3400.0}, {'current': 801.568, 'min': 800.0, 'max': 3400.0}, {'current': 798.449, 'min': 800.0, 'max': 3400.0}, {'current': 801.518, 'min': 800.0, 'max': 3400.0}, {'current': 801.532, 'min': 800.0, 'max': 3400.0}, {'current': 798.449, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3286.419, 'min': 800.0, 'max': 3400.0}, {'current': 1200.0, 'min': 800.0, 'max': 3400.0}, {'current': 2335.602, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.561, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 1197.463, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.44, 'min': 800.0, 'max': 3400.0}, {'current': 798.481, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.462, 'min': 800.0, 'max': 3400.0}, {'current': 799.629, 'min': 800.0, 'max': 3400.0}], 'disk': {'/': {'total': 216.99750900268555, 'used': 52.71467590332031}}, 'gpu': 'NVIDIA A100-SXM-80GB', 'gpu_count': 8, 'gpu_devices': [{'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}], 'memory': {'total': 1007.5401344299316}}
+2024-03-18 08:11:15,178 INFO    HandlerThread:1229555 [system_monitor.py:probe():224] Finished collecting system info
+2024-03-18 08:11:15,178 INFO    HandlerThread:1229555 [system_monitor.py:probe():227] Publishing system info
+2024-03-18 08:11:15,178 DEBUG   HandlerThread:1229555 [system_info.py:_save_pip():52] Saving list of pip packages installed into the current environment
+2024-03-18 08:11:15,180 DEBUG   HandlerThread:1229555 [system_info.py:_save_pip():68] Saving pip packages done
+2024-03-18 08:11:15,180 DEBUG   HandlerThread:1229555 [system_info.py:_save_conda():75] Saving list of conda packages installed into the current environment
+2024-03-18 08:11:15,764 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/conda-environment.yaml
+2024-03-18 08:11:15,765 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/requirements.txt
+2024-03-18 08:11:28,772 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/conda-environment.yaml
+2024-03-18 08:11:28,848 DEBUG   HandlerThread:1229555 [system_info.py:_save_conda():87] Saving conda packages done
+2024-03-18 08:11:28,853 INFO    HandlerThread:1229555 [system_monitor.py:probe():229] Finished publishing system info
+2024-03-18 08:11:28,898 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:11:28,899 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: keepalive
+2024-03-18 08:11:28,899 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:11:28,899 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: keepalive
+2024-03-18 08:11:28,900 DEBUG   SenderThread:1229555 [sender.py:send():382] send: files
+2024-03-18 08:11:28,900 INFO    SenderThread:1229555 [sender.py:_save_file():1392] saving file wandb-metadata.json with policy now
+2024-03-18 08:11:28,914 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:11:28,915 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:11:28,916 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:11:29,342 DEBUG   SenderThread:1229555 [sender.py:send():382] send: telemetry
+2024-03-18 08:11:29,343 DEBUG   SenderThread:1229555 [sender.py:send():382] send: config
+2024-03-18 08:11:29,346 DEBUG   SenderThread:1229555 [sender.py:send():382] send: metric
+2024-03-18 08:11:29,346 DEBUG   SenderThread:1229555 [sender.py:send():382] send: telemetry
+2024-03-18 08:11:29,347 DEBUG   SenderThread:1229555 [sender.py:send():382] send: metric
+2024-03-18 08:11:29,347 WARNING SenderThread:1229555 [sender.py:send_metric():1343] Seen metric with glob (shouldn't happen)
+2024-03-18 08:11:29,774 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/wandb-metadata.json
+2024-03-18 08:11:29,775 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/output.log
+2024-03-18 08:11:29,925 INFO    wandb-upload_0:1229555 [upload_job.py:push():131] Uploaded file /tmp/tmpjdirjwhfwandb/jow4qj9q-wandb-metadata.json
+2024-03-18 08:11:30,352 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:11:31,776 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/output.log
+2024-03-18 08:11:35,315 DEBUG   SenderThread:1229555 [sender.py:send():382] send: exit
+2024-03-18 08:11:35,315 INFO    SenderThread:1229555 [sender.py:send_exit():589] handling exit code: 1
+2024-03-18 08:11:35,315 INFO    SenderThread:1229555 [sender.py:send_exit():591] handling runtime: 20
+2024-03-18 08:11:35,318 INFO    SenderThread:1229555 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:11:35,318 INFO    SenderThread:1229555 [sender.py:send_exit():597] send defer
+2024-03-18 08:11:35,319 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: defer
+2024-03-18 08:11:35,319 INFO    HandlerThread:1229555 [handler.py:handle_request_defer():172] handle defer: 0
+2024-03-18 08:11:35,319 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: defer
+2024-03-18 08:11:35,319 INFO    SenderThread:1229555 [sender.py:send_request_defer():613] handle sender defer: 0
+2024-03-18 08:11:35,320 INFO    SenderThread:1229555 [sender.py:transition_state():617] send defer: 1
+2024-03-18 08:11:35,320 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: defer
+2024-03-18 08:11:35,320 INFO    HandlerThread:1229555 [handler.py:handle_request_defer():172] handle defer: 1
+2024-03-18 08:11:35,320 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: defer
+2024-03-18 08:11:35,320 INFO    SenderThread:1229555 [sender.py:send_request_defer():613] handle sender defer: 1
+2024-03-18 08:11:35,320 INFO    SenderThread:1229555 [sender.py:transition_state():617] send defer: 2
+2024-03-18 08:11:35,321 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: defer
+2024-03-18 08:11:35,321 INFO    HandlerThread:1229555 [handler.py:handle_request_defer():172] handle defer: 2
+2024-03-18 08:11:35,321 INFO    HandlerThread:1229555 [system_monitor.py:finish():203] Stopping system monitor
+2024-03-18 08:11:35,321 DEBUG   SystemMonitor:1229555 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-03-18 08:11:35,322 DEBUG   SystemMonitor:1229555 [system_monitor.py:_start():179] Finished system metrics aggregation loop
+2024-03-18 08:11:35,323 INFO    HandlerThread:1229555 [interfaces.py:finish():202] Joined cpu monitor
+2024-03-18 08:11:35,323 DEBUG   SystemMonitor:1229555 [system_monitor.py:_start():183] Publishing last batch of metrics
+2024-03-18 08:11:35,323 INFO    HandlerThread:1229555 [interfaces.py:finish():202] Joined disk monitor
+2024-03-18 08:11:35,781 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/output.log
+2024-03-18 08:11:35,781 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/wandb-summary.json
+2024-03-18 08:11:38,003 INFO    HandlerThread:1229555 [interfaces.py:finish():202] Joined gpu monitor
+2024-03-18 08:11:38,003 INFO    HandlerThread:1229555 [interfaces.py:finish():202] Joined memory monitor
+2024-03-18 08:11:38,003 INFO    HandlerThread:1229555 [interfaces.py:finish():202] Joined network monitor
+2024-03-18 08:11:38,004 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: poll_exit
+2024-03-18 08:11:38,004 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:11:38,005 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: defer
+2024-03-18 08:11:38,005 INFO    SenderThread:1229555 [sender.py:send_request_defer():613] handle sender defer: 2
+2024-03-18 08:11:38,005 INFO    SenderThread:1229555 [sender.py:transition_state():617] send defer: 3
+2024-03-18 08:11:38,006 DEBUG   SenderThread:1229555 [sender.py:send():382] send: stats
+2024-03-18 08:11:38,006 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: defer
+2024-03-18 08:11:38,008 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: poll_exit
+2024-03-18 08:11:38,008 INFO    HandlerThread:1229555 [handler.py:handle_request_defer():172] handle defer: 3
+2024-03-18 08:11:38,009 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: defer
+2024-03-18 08:11:38,009 INFO    SenderThread:1229555 [sender.py:send_request_defer():613] handle sender defer: 3
+2024-03-18 08:11:38,010 INFO    SenderThread:1229555 [sender.py:transition_state():617] send defer: 4
+2024-03-18 08:11:38,010 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: defer
+2024-03-18 08:11:38,010 INFO    HandlerThread:1229555 [handler.py:handle_request_defer():172] handle defer: 4
+2024-03-18 08:11:38,010 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: defer
+2024-03-18 08:11:38,010 INFO    SenderThread:1229555 [sender.py:send_request_defer():613] handle sender defer: 4
+2024-03-18 08:11:38,010 INFO    SenderThread:1229555 [sender.py:transition_state():617] send defer: 5
+2024-03-18 08:11:38,011 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: defer
+2024-03-18 08:11:38,011 INFO    HandlerThread:1229555 [handler.py:handle_request_defer():172] handle defer: 5
+2024-03-18 08:11:38,011 DEBUG   SenderThread:1229555 [sender.py:send():382] send: summary
+2024-03-18 08:11:38,013 INFO    SenderThread:1229555 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:11:38,014 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: defer
+2024-03-18 08:11:38,014 INFO    SenderThread:1229555 [sender.py:send_request_defer():613] handle sender defer: 5
+2024-03-18 08:11:38,014 INFO    SenderThread:1229555 [sender.py:transition_state():617] send defer: 6
+2024-03-18 08:11:38,014 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: defer
+2024-03-18 08:11:38,014 INFO    HandlerThread:1229555 [handler.py:handle_request_defer():172] handle defer: 6
+2024-03-18 08:11:38,015 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: defer
+2024-03-18 08:11:38,015 INFO    SenderThread:1229555 [sender.py:send_request_defer():613] handle sender defer: 6
+2024-03-18 08:11:38,020 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:11:38,354 INFO    SenderThread:1229555 [sender.py:transition_state():617] send defer: 7
+2024-03-18 08:11:38,355 DEBUG   HandlerThread:1229555 [handler.py:handle_request():146] handle_request: defer
+2024-03-18 08:11:38,355 INFO    HandlerThread:1229555 [handler.py:handle_request_defer():172] handle defer: 7
+2024-03-18 08:11:38,355 DEBUG   SenderThread:1229555 [sender.py:send_request():409] send_request: defer
+2024-03-18 08:11:38,355 INFO    SenderThread:1229555 [sender.py:send_request_defer():613] handle sender defer: 7
+2024-03-18 08:11:38,787 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/config.yaml
+2024-03-18 08:11:38,788 INFO    Thread-12 :1229555 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_081113-gqpi237t/files/wandb-summary.json

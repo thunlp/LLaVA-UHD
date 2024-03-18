@@ -1,0 +1,442 @@
+2024-03-18 08:26:13,025 INFO    StreamThr :1250402 [internal.py:wandb_internal():86] W&B internal server running at pid: 1250402, started at: 2024-03-18 08:26:13.023069
+2024-03-18 08:26:13,028 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status
+2024-03-18 08:26:13,029 INFO    WriterThread:1250402 [datastore.py:open_for_write():85] open: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/run-s15i1vfd.wandb
+2024-03-18 08:26:13,036 DEBUG   SenderThread:1250402 [sender.py:send():382] send: header
+2024-03-18 08:26:13,046 DEBUG   SenderThread:1250402 [sender.py:send():382] send: run
+2024-03-18 08:26:13,731 INFO    SenderThread:1250402 [dir_watcher.py:__init__():211] watching files in: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files
+2024-03-18 08:26:13,731 INFO    SenderThread:1250402 [sender.py:_start_run_threads():1136] run started: s15i1vfd with start time 1710721573.022814
+2024-03-18 08:26:13,740 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: check_version
+2024-03-18 08:26:13,741 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: check_version
+2024-03-18 08:26:13,945 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: run_start
+2024-03-18 08:26:14,794 DEBUG   HandlerThread:1250402 [system_info.py:__init__():32] System info init
+2024-03-18 08:26:14,794 DEBUG   HandlerThread:1250402 [system_info.py:__init__():47] System info init done
+2024-03-18 08:26:14,794 INFO    HandlerThread:1250402 [system_monitor.py:start():194] Starting system monitor
+2024-03-18 08:26:14,795 INFO    SystemMonitor:1250402 [system_monitor.py:_start():158] Starting system asset monitoring threads
+2024-03-18 08:26:14,795 INFO    HandlerThread:1250402 [system_monitor.py:probe():214] Collecting system info
+2024-03-18 08:26:14,796 INFO    SystemMonitor:1250402 [interfaces.py:start():190] Started cpu monitoring
+2024-03-18 08:26:14,797 INFO    SystemMonitor:1250402 [interfaces.py:start():190] Started disk monitoring
+2024-03-18 08:26:14,799 INFO    SystemMonitor:1250402 [interfaces.py:start():190] Started gpu monitoring
+2024-03-18 08:26:14,800 INFO    SystemMonitor:1250402 [interfaces.py:start():190] Started memory monitoring
+2024-03-18 08:26:14,801 INFO    SystemMonitor:1250402 [interfaces.py:start():190] Started network monitoring
+2024-03-18 08:26:14,874 DEBUG   HandlerThread:1250402 [system_info.py:probe():196] Probing system
+2024-03-18 08:26:14,877 DEBUG   HandlerThread:1250402 [system_info.py:_probe_git():181] Probing git
+2024-03-18 08:26:14,898 DEBUG   HandlerThread:1250402 [system_info.py:_probe_git():189] Probing git done
+2024-03-18 08:26:14,898 DEBUG   HandlerThread:1250402 [system_info.py:probe():244] Probing system done
+2024-03-18 08:26:14,898 DEBUG   HandlerThread:1250402 [system_monitor.py:probe():223] {'os': 'Linux-5.4.0-144-generic-x86_64-with-glibc2.31', 'python': '3.10.0', 'heartbeatAt': '2024-03-18T00:26:14.874213', 'startedAt': '2024-03-18T00:26:12.870013', 'docker': None, 'cuda': None, 'args': ('--local_rank=0', '--deepspeed', './scripts/zero2.json', '--model_name_or_path', '/home/xuruyi/vicuna-13b-v1.5', '--version', 'plain', '--data_path', '/home/xuruyi/llava_pretrain_data/blip_laion_cc_sbu_558k.json', '--image_folder', '/home/xuruyi/llava_pretrain_data', '--vision_tower', '/home/xuruyi/clip_model', '--mm_projector_type', 'mlp2x_gelu', '--tune_mm_mlp_adapter', 'True', '--mm_vision_select_layer', '-2', '--mm_use_im_start_end', 'False', '--mm_use_im_patch_token', 'False', '--bf16', 'True', '--output_dir', './checkpoints/llava-v1.5-13b-pretrain', '--num_train_epochs', '1', '--per_device_train_batch_size', '32', '--per_device_eval_batch_size', '4', '--gradient_accumulation_steps', '1', '--evaluation_strategy', 'no', '--save_strategy', 'steps', '--save_steps', '500', '--save_total_limit', '20', '--learning_rate', '1e-3', '--weight_decay', '0.', '--warmup_ratio', '0.03', '--lr_scheduler_type', 'cosine', '--logging_steps', '1', '--tf32', 'True', '--model_max_length', '2048', '--gradient_checkpointing', 'True', '--dataloader_num_workers', '4', '--lazy_preprocess', 'True', '--report_to', 'wandb'), 'state': 'running', 'program': '/home/xuruyi/myLLaVa/LLAVA_UHD/llava_uhd/train/llava-uhd/train_mem.py', 'codePathLocal': 'llava_uhd/train/llava-uhd/train_mem.py', 'codePath': 'llava_uhd/train/llava-uhd/train_mem.py', 'git': {'remote': 'repository-url', 'commit': '71b9cf36d78c373af2ecb1a8082c3cef35d433e2'}, 'email': 'xury22@mails.tsinghua.edu.cn', 'root': '/home/xuruyi/myLLaVa/LLAVA_UHD', 'host': 'g3017', 'username': 'xuruyi', 'executable': '/home/xuruyi/miniconda3/envs/newllava/bin/python', 'cpu_count': 64, 'cpu_count_logical': 128, 'cpu_freq': {'current': 1244.8881250000002, 'min': 800.0, 'max': 3400.0}, 'cpu_freq_per_core': [{'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.434, 'min': 800.0, 'max': 3400.0}, {'current': 801.632, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.626, 'min': 800.0, 'max': 3400.0}, {'current': 798.343, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.127, 'min': 800.0, 'max': 3400.0}, {'current': 801.584, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 1719.962, 'min': 800.0, 'max': 3400.0}, {'current': 851.084, 'min': 800.0, 'max': 3400.0}, {'current': 799.885, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 1321.917, 'min': 800.0, 'max': 3400.0}, {'current': 902.022, 'min': 800.0, 'max': 3400.0}, {'current': 801.612, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 799.911, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.659, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.603, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 2944.117, 'min': 800.0, 'max': 3400.0}, {'current': 796.444, 'min': 800.0, 'max': 3400.0}, {'current': 798.591, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.415, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.589, 'min': 800.0, 'max': 3400.0}, {'current': 798.618, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.393, 'min': 800.0, 'max': 3400.0}, {'current': 798.601, 'min': 800.0, 'max': 3400.0}, {'current': 801.346, 'min': 800.0, 'max': 3400.0}, {'current': 801.36, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.73, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.068, 'min': 800.0, 'max': 3400.0}, {'current': 799.931, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.606, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.425, 'min': 800.0, 'max': 3400.0}, {'current': 801.684, 'min': 800.0, 'max': 3400.0}, {'current': 801.666, 'min': 800.0, 'max': 3400.0}, {'current': 801.659, 'min': 800.0, 'max': 3400.0}, {'current': 798.415, 'min': 800.0, 'max': 3400.0}, {'current': 801.626, 'min': 800.0, 'max': 3400.0}, {'current': 801.612, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 2149.87, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 1423.841, 'min': 800.0, 'max': 3400.0}, {'current': 897.982, 'min': 800.0, 'max': 3400.0}, {'current': 798.36, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.39, 'min': 800.0, 'max': 3400.0}, {'current': 801.67, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 798.467, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 2600.367, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.423, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.426, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.405, 'min': 800.0, 'max': 3400.0}, {'current': 798.553, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 799.82, 'min': 800.0, 'max': 3400.0}, {'current': 801.282, 'min': 800.0, 'max': 3400.0}, {'current': 798.548, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.42, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 799.912, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 3300.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 900.0, 'min': 800.0, 'max': 3400.0}, {'current': 800.0, 'min': 800.0, 'max': 3400.0}, {'current': 801.441, 'min': 800.0, 'max': 3400.0}, {'current': 798.618, 'min': 800.0, 'max': 3400.0}], 'disk': {'/': {'total': 216.99750900268555, 'used': 52.71500015258789}}, 'gpu': 'NVIDIA A100-SXM-80GB', 'gpu_count': 8, 'gpu_devices': [{'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}, {'name': 'NVIDIA A100-SXM-80GB', 'memory_total': 85198045184}], 'memory': {'total': 1007.5401344299316}}
+2024-03-18 08:26:14,898 INFO    HandlerThread:1250402 [system_monitor.py:probe():224] Finished collecting system info
+2024-03-18 08:26:14,899 INFO    HandlerThread:1250402 [system_monitor.py:probe():227] Publishing system info
+2024-03-18 08:26:14,899 DEBUG   HandlerThread:1250402 [system_info.py:_save_pip():52] Saving list of pip packages installed into the current environment
+2024-03-18 08:26:14,900 DEBUG   HandlerThread:1250402 [system_info.py:_save_pip():68] Saving pip packages done
+2024-03-18 08:26:14,901 DEBUG   HandlerThread:1250402 [system_info.py:_save_conda():75] Saving list of conda packages installed into the current environment
+2024-03-18 08:26:15,737 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/requirements.txt
+2024-03-18 08:26:15,738 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/conda-environment.yaml
+2024-03-18 08:26:17,699 DEBUG   HandlerThread:1250402 [system_info.py:_save_conda():87] Saving conda packages done
+2024-03-18 08:26:17,703 INFO    HandlerThread:1250402 [system_monitor.py:probe():229] Finished publishing system info
+2024-03-18 08:26:17,708 DEBUG   SenderThread:1250402 [sender.py:send():382] send: files
+2024-03-18 08:26:17,708 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-metadata.json with policy now
+2024-03-18 08:26:17,716 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:26:17,717 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:26:17,717 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:26:17,737 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/conda-environment.yaml
+2024-03-18 08:26:17,738 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-metadata.json
+2024-03-18 08:26:18,115 DEBUG   SenderThread:1250402 [sender.py:send():382] send: telemetry
+2024-03-18 08:26:18,115 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:26:18,115 DEBUG   SenderThread:1250402 [sender.py:send():382] send: config
+2024-03-18 08:26:18,118 DEBUG   SenderThread:1250402 [sender.py:send():382] send: metric
+2024-03-18 08:26:18,118 DEBUG   SenderThread:1250402 [sender.py:send():382] send: telemetry
+2024-03-18 08:26:18,118 DEBUG   SenderThread:1250402 [sender.py:send():382] send: metric
+2024-03-18 08:26:18,118 WARNING SenderThread:1250402 [sender.py:send_metric():1343] Seen metric with glob (shouldn't happen)
+2024-03-18 08:26:18,739 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:26:20,741 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:26:23,121 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:26:28,122 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:26:32,716 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:26:32,717 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:26:32,718 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:26:34,011 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:26:39,012 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:26:40,733 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:26:40,737 DEBUG   SenderThread:1250402 [sender.py:send():382] send: metric
+2024-03-18 08:26:40,738 DEBUG   SenderThread:1250402 [sender.py:send():382] send: metric
+2024-03-18 08:26:40,739 DEBUG   SenderThread:1250402 [sender.py:send():382] send: metric
+2024-03-18 08:26:40,739 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:26:40,739 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:26:40,744 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:26:40,763 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_created():271] file/dir created: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:26:42,765 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:26:44,751 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:26:45,771 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/config.yaml
+2024-03-18 08:26:47,716 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:26:47,717 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:26:47,717 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:26:50,968 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:26:51,627 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:26:51,629 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:26:51,630 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:26:51,634 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:26:51,778 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:26:52,779 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:26:56,636 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:01,637 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:01,828 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:27:01,830 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:27:01,831 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:27:01,834 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:27:02,783 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:27:02,783 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:27:02,784 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:27:02,791 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:27:02,792 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:27:07,116 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:11,971 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:27:11,972 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:27:11,973 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:27:11,978 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:27:12,802 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:27:12,803 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:27:12,979 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:14,802 DEBUG   SystemMonitor:1250402 [system_monitor.py:_start():172] Starting system metrics aggregation loop
+2024-03-18 08:27:14,810 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:27:17,782 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:27:17,783 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:27:17,784 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:27:18,065 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:22,072 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:27:22,074 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:27:22,075 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:27:22,080 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:27:22,822 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:27:22,823 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:27:23,081 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:28,082 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:32,267 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:27:32,269 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:27:32,270 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:27:32,273 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:27:32,833 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:27:32,834 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:27:33,275 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:33,487 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:27:33,487 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:27:33,488 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:27:34,836 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:27:38,747 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:42,475 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:27:42,478 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:27:42,479 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:27:42,484 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:27:42,845 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:27:42,846 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:27:44,486 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:44,815 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:27:44,848 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:27:48,485 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:27:48,486 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:27:48,487 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:27:49,794 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:52,937 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:27:52,939 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:27:52,940 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:27:52,945 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:27:53,858 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:27:54,859 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:27:54,947 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:27:59,948 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:02,697 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:28:02,700 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:28:02,700 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:28:02,703 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:28:02,869 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:28:02,870 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:28:04,822 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:28:04,824 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:28:04,825 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:28:04,881 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:28:05,153 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:10,154 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:14,201 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:28:14,203 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:28:14,204 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:28:14,206 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:28:14,819 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:28:14,888 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:28:14,888 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:28:15,821 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:19,823 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:28:19,824 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:28:19,826 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:28:21,139 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:24,355 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:28:24,358 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:28:24,358 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:28:24,363 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:28:24,895 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:28:24,896 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:28:26,364 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:31,365 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:34,463 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:28:34,465 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:28:34,466 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:28:34,471 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:28:34,904 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:28:34,904 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:28:36,346 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:28:36,347 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:28:36,348 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:28:36,642 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:36,906 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:28:41,642 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:44,826 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:28:45,864 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:28:45,866 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:28:45,867 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:28:45,869 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:28:45,914 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:28:46,874 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:46,915 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:28:51,347 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:28:51,347 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:28:51,348 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:28:52,652 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:28:55,397 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:28:55,398 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:28:55,399 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:28:55,404 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:28:55,921 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:28:56,923 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:28:58,406 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:03,407 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:05,984 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:29:05,987 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:29:05,988 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:29:05,991 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:29:06,696 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:29:06,696 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:29:06,697 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:29:06,936 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:29:06,937 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:29:09,000 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:14,001 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:14,828 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:29:16,167 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:29:16,169 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:29:16,170 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:29:16,175 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:29:16,949 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:29:16,950 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:29:19,176 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:21,696 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:29:21,696 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:29:21,697 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:29:24,962 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:26,427 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:29:26,429 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:29:26,430 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:29:26,435 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:29:26,960 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:29:26,961 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:29:30,437 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:35,437 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:36,341 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:29:36,343 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:29:36,344 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:29:36,346 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:29:36,971 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:29:36,971 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:29:37,601 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:29:37,602 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:29:37,602 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:29:40,902 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:44,830 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:29:46,831 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:47,139 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:29:47,141 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:29:47,142 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:29:47,148 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:29:47,982 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:29:48,983 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:29:52,149 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:52,601 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:29:52,602 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:29:52,602 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:29:57,007 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:29:57,010 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:29:57,010 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:29:57,012 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:29:57,992 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:29:58,014 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:29:58,993 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:29:59,994 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:03,014 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:06,698 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:30:06,701 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:30:06,702 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:30:06,704 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:30:07,002 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:30:07,795 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:30:07,795 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:30:07,796 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:30:08,003 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:08,118 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:09,004 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:13,119 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:14,832 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:30:17,245 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:30:17,247 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:30:17,248 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:30:17,250 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:30:18,012 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:30:18,251 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:19,013 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:20,014 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:22,795 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:30:22,796 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:30:22,797 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:30:24,102 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:28,586 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:30:28,589 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:30:28,589 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:30:28,594 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:30:29,022 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:30:29,595 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:30,023 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:31,024 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:34,596 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:38,219 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:30:38,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:30:38,221 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:30:38,275 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:30:38,555 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:30:38,556 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:30:38,558 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:30:39,033 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:30:39,034 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:40,034 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:40,559 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:44,834 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:30:45,837 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:48,090 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:30:48,092 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:30:48,092 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:30:48,094 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:30:49,044 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:30:49,044 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:50,045 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:30:51,096 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:53,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:30:53,221 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:30:53,221 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:30:56,564 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:30:59,601 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:30:59,603 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:30:59,604 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:30:59,606 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:31:00,056 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:31:01,057 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:01,609 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:02,059 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:06,609 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:08,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:31:08,221 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:31:08,222 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:31:09,643 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:31:09,645 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:31:09,646 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:31:09,649 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:31:10,068 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:31:11,069 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:11,651 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:12,070 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:14,836 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:31:16,839 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:20,364 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:31:20,367 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:31:20,367 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:31:20,370 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:31:21,081 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:31:21,081 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:22,081 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:22,371 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:23,219 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:31:23,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:31:23,220 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:31:27,490 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:30,379 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:31:30,382 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:31:30,382 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:31:30,384 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:31:31,091 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:31:31,091 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:32,091 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:33,385 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:38,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:31:38,221 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:31:38,222 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:31:38,475 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:40,840 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:31:40,843 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:31:40,843 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:31:40,849 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:31:41,100 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:31:42,102 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:43,103 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:43,851 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:44,842 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:31:49,846 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:31:50,913 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:31:50,915 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:31:50,916 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:31:50,918 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:31:51,112 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:31:52,113 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:53,114 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:31:53,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:31:53,221 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:31:53,222 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:31:55,471 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:32:00,472 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:32:01,015 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:32:01,017 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:32:01,018 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:32:01,020 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:32:01,122 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:32:02,123 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:32:03,124 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:32:06,021 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:32:08,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:32:08,221 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:32:08,222 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:32:10,715 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:32:10,717 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:32:10,718 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:32:10,719 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:32:11,132 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:32:11,133 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:32:11,720 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:32:12,161 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:32:14,846 DEBUG   SenderThread:1250402 [sender.py:send():382] send: stats
+2024-03-18 08:32:16,848 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:32:21,428 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:32:21,430 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:32:21,431 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:32:21,433 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:32:22,173 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:32:22,434 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:32:23,173 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:32:23,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:32:23,221 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:32:23,222 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:32:24,174 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:32:27,565 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:32:31,415 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: partial_history
+2024-03-18 08:32:31,417 DEBUG   SenderThread:1250402 [sender.py:send():382] send: history
+2024-03-18 08:32:31,418 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: summary_record
+2024-03-18 08:32:31,420 INFO    SenderThread:1250402 [sender.py:_save_file():1392] saving file wandb-summary.json with policy end
+2024-03-18 08:32:32,182 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/wandb-summary.json
+2024-03-18 08:32:33,183 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:32:33,421 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
+2024-03-18 08:32:34,184 INFO    Thread-12 :1250402 [dir_watcher.py:_on_file_modified():288] file/dir modified: /home/xuruyi/myLLaVa/LLAVA_UHD/wandb/run-20240318_082612-s15i1vfd/files/output.log
+2024-03-18 08:32:38,220 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: internal_messages
+2024-03-18 08:32:38,221 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: stop_status
+2024-03-18 08:32:38,222 DEBUG   SenderThread:1250402 [sender.py:send_request():409] send_request: stop_status
+2024-03-18 08:32:38,487 DEBUG   HandlerThread:1250402 [handler.py:handle_request():146] handle_request: status_report
