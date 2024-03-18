@@ -1,11 +1,10 @@
-
+<div align="center">
+  
 # LLaVA-UHD
 
-We present LLaVA-UHD, a
-large multimodal model that can efficiently perceive images in any aspect ratio and
-high resolution. 
+**A Large Multimodal Model Perceiving Any Aspect Ratio and High-Resolution Images**
 
-
+This repository hosts the code, data, and model weight of **LLaVA-UHD**, a novel framework that enables Large Multimodal Models (LMMs) to efficiently perceive images in any aspect ratio and high resolution.
 
 Notably, our model built on LLaVA-1.5 336×336 supports 6 times
 larger (i.e., 672×1088) resolution images using only 94% inference computation,
@@ -62,4 +61,13 @@ bash scripts/finetune.sh
 
 When evaluating the model, we almost synchronously use the testing code of llava1.5, and the basic usage method is consistent. Please refer to [here](https://github.com/haotian-liu/LLaVA?tab=readme-ov-file#evaluation) for help. We provide the same script to complete the testing.
 
+## Citation
 
+If you find LLaVA-UHD useful for your research and applications, please cite using this BibTeX:
+```bibtex
+@article{xu2024llava-uhd,
+  title={{LLaVA-UHD}: an LMM Perceiving Any Aspect Ratio and High-Resolution Images},
+  author={Xu, Ruyi and Yao, Yuan and Guo, Zonghao and Cui, Junbo and Ni, Zanlin and Ge, Chunjiang and Chua, Tat-Seng and Liu, Zhiyuan and Huang, Gao},
+  year={2024}
+}
+```
