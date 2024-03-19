@@ -677,14 +677,11 @@ class LazySupervisedDataset(Dataset):
             image_folder = self.data_args.image_folder
             
             image = Image.open(os.path.join(image_folder, image_file)).convert('RGB')
-            
             origin_image_width  = image.size[0]
             origin_image_height = image.size[1]
             
             slices_and_image = process_image(image)
-            # print( slices_and_image[0])            
             image_tuple = tuple(slices_and_image)
-            # print(image_tuple)
             image_tensor = torch.cat(image_tuple,dim = 0)
             
                 
@@ -711,9 +708,6 @@ class LazySupervisedDataset(Dataset):
             
         
         elif self.data_args.is_multimodal:
-            print("theere isnt a photo!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            # print(2)
-            # image does not exist in the data, but the model is multimodal
             crop_size = self.data_args.image_processor.crop_size
             
             image = torch.zeros(3, crop_size['height'], crop_size['width'])
@@ -760,7 +754,6 @@ class DataCollatorForSupervisedDataset(object):
             
         if 'image' in instances[0]:
             images = [instance['image'] for instance in instances]
-            # print("____MY_DEBUG_2____",images)
             if all(x is not None and x.shape == images[0].shape for x in images):
                 batch['images'] = torch.stack(images)
             else:
@@ -769,11 +762,13 @@ class DataCollatorForSupervisedDataset(object):
                 for x in images:
                     padding = torch.zeros(max_of_x - x.size(0), x.size(1), x.size(2), dtype=x.dtype)
                     # 在第一个维度上堆叠填充
-                    padded_x_tensor = torch.cat((x, padding), dim=0)
+                    padded_x_tensor = torch.cat((padding, x), dim=0)
                     padded_x_tensors.append(padded_x_tensor)
 
                 batch['images'] = torch.stack(padded_x_tensors)
                 
+
+
         return batch
 
 
@@ -801,7 +796,6 @@ def train():
 
     bnb_model_from_pretrained_args = {}
     if training_args.bits in [4, 8]:
-        # print("MY_DEBUG_9________")
         from transformers import BitsAndBytesConfig
         bnb_model_from_pretrained_args.update(dict(
             device_map={"": training_args.device},
@@ -930,9 +924,7 @@ def train():
         model.config.tokenizer_padding_side = tokenizer.padding_side
         model.config.tokenizer_model_max_length = tokenizer.model_max_length
 
-        # print("model_args",model_args)
-        # print("config:",model.config)
-        print("training_args:",training_args)
+        
         training_args.tune_mm_mlp_adapter = model_args.tune_mm_mlp_adapter
         model.config.tune_mm_mlp_adapter = model_args.tune_mm_mlp_adapter 
         if model_args.tune_mm_mlp_adapter:
@@ -944,12 +936,6 @@ def train():
         if training_args.freeze_mm_mlp_adapter:
             for p in model.get_model().mm_projector.parameters():
                 p.requires_grad = False
-
-        # print("MY_DEBUG_100_________")
-        print("freezeinginging")
-        # model.get_vision_tower().unfreeze_position_embedding()
-
-        # print("MY_DEBUG_111_________")
 
         if training_args.bits in [4, 8]:
             model.get_model().mm_projector.to(dtype=compute_dtype, device=training_args.device)
@@ -990,12 +976,6 @@ def train():
                     args=training_args,
                     **data_module)
     
-    # def print_model_parameters(model):
-    #     print("Model Parameters:")
-    #     for name, param in model.named_parameters():
-    #         print(f"{name}: {param.size()}")
-
-    # print_model_parameters(model)
 
     #-----------------------------------------------------#
     #  检查 checkpoints 路径是否有保存的检查点

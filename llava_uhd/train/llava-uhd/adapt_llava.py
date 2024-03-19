@@ -64,7 +64,6 @@ class adapt_LlavaMetaModel:
         else:
             # In case it is frozen by LoRA
             for p in self.mm_projector.parameters():
-                print("MY_DEBUG_723",p)
                 p.requires_grad = True
 
         if pretrain_mm_mlp_adapter is not None:
@@ -87,21 +86,10 @@ class adapt_LlavaMetaForCausalLM(ABC):
     
     def encode_images(self, images,origin_image_widths,origin_image_heights):
         
-        # print("len(images)",len(images))
-        # print("images[0]",images[0].shape)
         image_features = self.get_model().get_vision_tower()(images,origin_image_widths,origin_image_heights)
         if isinstance(image_features,list):
             image_features_list = []
             for image_feature in image_features:
-                # print(image_feature)
-                # 将维度为5120的向量是否全为0的布尔掩码
-                # mask = torch.all(image_feature == 0, dim=2)
-
-                # # 打印维度为5120的向量为0的位置
-                # indices = torch.nonzero(mask)
-
-                # print("维度为5120的向量为0的位置：")
-                # print(indices)
 
                 image_features_list.append(self.get_model().mm_projector(image_feature))
             image_features = torch.concat( tuple(image_features_list) ,dim = 0)
@@ -277,7 +265,6 @@ class adapt_LlavaMetaForCausalLM(ABC):
                     p.requires_grad = False
 
             if model_args.pretrain_mm_mlp_adapter:
-                print("MY_DEBUG_123")
                 mm_projector_weights = torch.load(model_args.pretrain_mm_mlp_adapter, map_location='cpu')
                 embed_tokens_weight = mm_projector_weights['model.embed_tokens.weight']
                 assert num_new_tokens == 2

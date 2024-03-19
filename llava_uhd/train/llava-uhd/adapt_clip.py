@@ -6,7 +6,7 @@ from transformers.models.clip.modeling_clip import (CLIPEncoderLayer, CLIPAttent
                                                     CLIPEncoder, CLIPVisionTransformer, CLIPPreTrainedModel)
 from typing import List, Optional, Tuple, Union
 import os
-
+from slice_logic import get_patch_nums
 #---------------------------------------------------------------------------#
 # 用来生成position embedding的层
 #---------------------------------------------------------------------------#   
@@ -262,24 +262,35 @@ class adapt_CLIPVisionTower(nn.Module):
             
             image_features = []
             split_images = torch.chunk(images, chunks=8, dim=1)
-
-
+            
+            slice_w_nums=[]
+            slice_h_nums=[]
+            abstract_w_nums=[]
+            abstract_h_nums=[]
+            
+            for i in range(len(origin_image_widths)):
+                slice_w_num,slice_h_num,abstract_w_num,abstract_h_num = get_patch_nums(origin_image_widths[i],origin_image_heights[i])
+                slice_w_nums.append(slice_w_num)
+                slice_h_nums.append(slice_h_num)
+                abstract_w_nums.append(abstract_w_num)
+                abstract_h_nums.append(abstract_h_num)
+                
+                
             for i, image in enumerate(split_images):
                 
-                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
+                if i == 7:
+                    image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
                                                       output_hidden_states=True,
-                                                      origin_image_widths = origin_image_widths,
-                                                      origin_image_heights = origin_image_heights)
+                                                      origin_image_widths = slice_w_nums,
+                                                      origin_image_heights = slice_h_nums)
+                else:
+                    image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0),
+                                                      output_hidden_states=True,
+                                                      origin_image_widths = abstract_w_nums,
+                                                      origin_image_heights = abstract_h_nums)
                 
                 image_feature = self.feature_select(image_forward_out).to(image.dtype)
 
-                # mask = torch.all(image_feature == 0, dim=2)
-                # print("image_feature.shape",image_feature.shape)
-                # # 打印维度为5120的向量为0的位置
-                # indices = torch.nonzero(mask)
-
-                # print("image_feature：")
-                # print(indices)
                 image_features.append(image_feature)
 
         else:
