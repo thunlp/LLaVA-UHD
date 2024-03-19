@@ -9,7 +9,7 @@ This repository hosts the code, data, and model weight of **LLaVA-UHD**, a novel
 
 Notably, our model built on LLaVA-1.5 336×336 supports 6 times
 larger (i.e., 672×1088) resolution images using only 94% inference computation,
-and achieves 6.4 accuracy improvement on TextVQA. Moreover, the model can be efficiently trained in academic settings, within 23 hours on 8 A100 GPUs (vs. 26 hours of LLaVA-1.5). Visit our 📃 [paper](https://arxiv.org/pdf/2403.11703.pdf) here.
+and achieves 6.4 accuracy improvement on TextVQA. Moreover, the model can be efficiently trained in academic settings, within 23 hours on 8 A100 GPUs (vs. 26 hours of LLaVA-1.5). Visit our 📃 [paper](https://arxiv.org/pdf/2403.11703.pdf) here!
 
 
 ## Overview
