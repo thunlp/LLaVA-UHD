@@ -64,6 +64,9 @@ bash scripts/finetune.sh
 
 When evaluating the model, we almost synchronously use the testing code of llava1.5, and the basic usage method is consistent. Please refer to [here](https://github.com/haotian-liu/LLaVA?tab=readme-ov-file#evaluation) for help. We provide the same script to complete the testing.
 
+## Exploratory experiments
+Exploratory experiments relevant to the paper and more reliable code are currently being further organized. Some of the code is not yet in its final version. Stay tuned!
+
 ## Citation
 
 If you find LLaVA-UHD useful for your research and applications, please cite using this BibTeX:
