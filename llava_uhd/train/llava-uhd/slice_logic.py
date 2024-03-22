@@ -212,13 +212,14 @@ def process_image(image):
         return images
 
 
-img = Image.open("/home/xuruyi/myLLaVa/883700e3366b775c93315373510e7e7.png")
-images = process_image(img)
+if __name__ == '__main__':
+    img = Image.open("/home/xuruyi/myLLaVa/883700e3366b775c93315373510e7e7.png")
+    images = process_image(img)
 
-for i in range(len(images)):
-    img = images[i]
-    to_pil = ToPILImage()
+    for i in range(len(images)):
+        img = images[i]
+        to_pil = ToPILImage()
 
-    img = to_pil(img)
+        img = to_pil(img)
 
-    img.save(f"image{i}.png")
+        img.save(f"image{i}.png")
