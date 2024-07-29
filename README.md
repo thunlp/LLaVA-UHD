@@ -60,7 +60,7 @@ And put the data into ./playground/data. Also could refer to the documentation o
     Download dataset images as in the finetuning process of LLaVA-1.5, place them in the ./playground/data
 ## Training Script
 Please refer to train.sh for pretraining script and fine-tuning script (we comment in the file). 
-If want to do end-to-end pretraining, fine-tuning and evalutation, please run the following command.
+If you want to do end-to-end pretraining, fine-tuning and evalutation, please run the following command.
 
 ```bash
 sh train.sh
@@ -80,7 +80,7 @@ We provide the same script to complete the testing.
 
 If you find LLaVA-UHD useful for your research and applications, please cite using this BibTeX:
 ```bibtex
-@article{xu2024llava-uhd,
+@article{guo2024llava-uhd,
   title={{LLaVA-UHD}: an LMM Perceiving Any Aspect Ratio and High-Resolution Images},
   author={Guo, Zonghao and Xu, Ruyi and Yao, Yuan and Cui, Junbo and Ni, Zanlin and Ge, Chunjiang and Chua, Tat-Seng and Liu, Zhiyuan and Huang, Gao},
   journal={arXiv preprint arXiv:2403.11703},
