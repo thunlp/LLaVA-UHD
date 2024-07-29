@@ -42,14 +42,14 @@ sh install.sh
 ```
 
 2. Download the checkpoints of [CLIP-ViT-L/14](https://huggingface.co/openai/clip-vit-large-patch14-336) 
-   and [Vicuna-13B-v1.5](https://huggingface.co/lmsys/vicuna-13b-v1.5). And put them into ./pretrained_models
+   and [Vicuna-13B-v1.5](https://huggingface.co/lmsys/vicuna-13b-v1.5). And put them into ```./pretrained_models```
 
 If something wrong happens, please kindly refer to the issues of [LLaVA](https://github.com/haotian-liu/LLaVA/issues) 
 or submit issues in our repository.
 
 ## Data Preparing
 1. **Pretraining Data**: Download the 558K subset of the LAION-CC-SBU dataset with BLIP captions we use in the paper [here](https://huggingface.co/datasets/liuhaotian/LLaVA-Pretrain).
-And put the data into ./playground/data. Also could refer to the documentation of [LLaVA](https://github.com/haotian-liu/LLaVA) for detailed data organization.
+And put the data into ```./playground/data```. Also could refer to the documentation of [LLaVA](https://github.com/haotian-liu/LLaVA) for detailed data organization.
 2. **Fine-tuning Data**: Please download the annotation of the final mixture our instruction tuning data [llava_v1_5_mix665k.json](https://huggingface.co/datasets/liuhaotian/LLaVA-Instruct-150K/blob/main/llava_v1_5_mix665k.json), and download the images from constituting datasets:
     - COCO: train2017
     - GQA: images
@@ -57,7 +57,7 @@ And put the data into ./playground/data. Also could refer to the documentation o
     - TextCaps: train_val_images
     - VisualGenome: part1, part2
 
-    Download dataset images as in the finetuning process of LLaVA-1.5, place them in the ./playground/data
+    Download dataset images as in the finetuning process of LLaVA-1.5, place them in the ```./playground/data```
 ## Training Script
 Please refer to train.sh for pretraining script and fine-tuning script (we comment in the file). 
 If you want to do end-to-end pretraining, fine-tuning and evalutation, please run the following command.
