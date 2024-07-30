@@ -28,7 +28,7 @@ performs established LMMs trained with 2-3 orders of magnitude more data on
 ## Release
 -[2024/07/29] 🔥LLaVA-UHD achieves performance improvement on 8 common benchmarks beyong LLaVA-1.5. 
               Our novel projector, **spatially constrained resampler**, realizes high feature compression and convergence efficiency. 
-              Model checkpoints are available in [hugging-face](https://xxx).
+              Model checkpoints are available in [hugging-face](https://huggingface.co/guozonghao96/llava-uhd-144-13b).
 
 -[2024/07/01] 📢[LLaVA-UHD](https://arxiv.org/pdf/2403.11703.pdf) is accepted by ECCV2024.
 
