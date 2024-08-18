@@ -42,7 +42,7 @@ sh install.sh
 ```
 
 2. Download the checkpoints of [CLIP-ViT-L/14](https://huggingface.co/openai/clip-vit-large-patch14-336) 
-   and [Vicuna-13B-v1.5](https://huggingface.co/lmsys/vicuna-13b-v1.5). And put them into ```./pretrained_models```
+   and [Vicuna-13B-v1.5](https://huggingface.co/lmsys/vicuna-13b-v1.5). And put them into ```./pretrained_models```. In the checkpoint path of vicuna-13b-v1.5, set 'do_sample' in 'generation_config.json' as 'True', otherwise there is an error when saving training checkpoint.
 
 If something wrong happens, please kindly refer to the issues of [LLaVA](https://github.com/haotian-liu/LLaVA/issues) 
 or submit issues in our repository.
