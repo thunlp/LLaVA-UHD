@@ -24,6 +24,7 @@ slices for efficient and extensible encoding.
 slice tokens for LLMs. Comprehensive experiments show that LLaVA-UHD out-
 performs established LMMs trained with 2-3 orders of magnitude more data on
 8 benchmarks. 
+-  Better and robust performance in limited training datasets
 
 ## Release
 -[2024/07/29] 🔥LLaVA-UHD achieves performance improvement on 8 common benchmarks beyong LLaVA-1.5. 
