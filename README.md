@@ -85,7 +85,7 @@ If you find LLaVA-UHD useful for your research and applications, please cite usi
   title={{LLaVA-UHD}: an LMM Perceiving Any Aspect Ratio and High-Resolution Images},
   author={Guo, Zonghao and Xu, Ruyi and Yao, Yuan and Cui, Junbo and Ni, Zanlin and Ge, Chunjiang and Chua, Tat-Seng and Liu, Zhiyuan and Huang, Gao},
   booktitle={ECCV},
-  year={20241}
+  year={2024}
 }
 ```
 
