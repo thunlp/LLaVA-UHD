@@ -81,10 +81,11 @@ We provide the same script to complete the testing.
 
 If you find LLaVA-UHD useful for your research and applications, please cite using this BibTeX:
 ```bibtex
-@article{guo2024llava-uhd,
+@inproceedings{guo2024llava-uhd,
   title={{LLaVA-UHD}: an LMM Perceiving Any Aspect Ratio and High-Resolution Images},
   author={Guo, Zonghao and Xu, Ruyi and Yao, Yuan and Cui, Junbo and Ni, Zanlin and Ge, Chunjiang and Chua, Tat-Seng and Liu, Zhiyuan and Huang, Gao},
-  journal={arXiv preprint arXiv:2403.11703},
+  booktitle={ECCV},
   year={2024}
 }
 ```
+
