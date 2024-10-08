@@ -31,7 +31,7 @@ performs established LMMs trained with 2-3 orders of magnitude more data on
               Our novel projector, **spatially constrained resampler**, realizes high feature compression and convergence efficiency. 
               Model checkpoints are available in [hugging-face](https://huggingface.co/guozonghao96/llava-uhd-144-13b).
 
--[2024/07/01] 📢[LLaVA-UHD](https://arxiv.org/pdf/2403.11703.pdf) is accepted by ECCV2024.
+-[2024/07/01] 📢[LLaVA-UHD](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11080.pdf) is accepted by ECCV2024.
 
 ## Environment Preparing
 1. To reproduce the results of the paper, please set up the Python environment using the following code:
