@@ -6,7 +6,7 @@
 </div>
 
 This repository hosts the code, data, and model weight of **LLaVA-UHD**, a novel framework that enables Large Multimodal Models (LMMs) to efficiently perceive images in any aspect ratio and high resolution. Notably, our model built on LLaVA-1.5 336×336 supports 6 times
-larger (i.e., 672×1088) resolution images and achieves 5.7 accuracy improvement on TextVQA. Moreover, the model can be efficiently trained in academic settings, within ~1 day on 8 A100 GPUs. Visit our 📃 [paper](https://arxiv.org/pdf/2403.11703.pdf) here!
+larger (i.e., 672×1088) resolution images and achieves 5.7 accuracy improvement on TextVQA. Moreover, the model can be efficiently trained in academic settings, within ~1 day on 8 A100 GPUs. Visit our 📃 [paper](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11080.pdf) here!
 
 
 ## Overview
