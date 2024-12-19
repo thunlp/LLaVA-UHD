@@ -122,9 +122,6 @@ qwen_series = {
 }
 
 llava_series = {
-    'llava_v1.5_7b': partial(LLaVA, model_path='/home/jeeves/yangxuesong/LLaVA/checkpoints/llava-v1.5-7b-llm2clip'),
-    'llava_v1.5_13b': partial(LLaVA, model_path='/data/pretrained_models/llava-v1.5-13b'),
-    'llava_v1.5_cc3m':partial(LLaVA, model_path='/home/jeeves/yangxuesong/LLaVA/checkpoints/llava-v1.5-cc3m-7b'),
     'llava_v1_7b': partial(LLaVA, model_path=LLAVA_V1_7B_MODEL_PTH),
     'sharegpt4v_7b': partial(LLaVA, model_path='Lin-Chen/ShareGPT4V-7B'),
     'sharegpt4v_13b': partial(LLaVA, model_path='Lin-Chen/ShareGPT4V-13B'),
