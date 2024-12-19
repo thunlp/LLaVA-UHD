@@ -1,8 +1,40 @@
 import torch
 import torch.nn as nn
+import os
+from safetensors import safe_open
 
 from transformers import CLIPVisionModel, CLIPImageProcessor, CLIPVisionConfig
 from llava.model.multimodal_encoder.adapt_clip_vision_model import AdaptCLIPVisionModel
+from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAndBytesConfig
+
+def load_vision_tower_values(model_path, device):
+    """
+    在给定的路径下查找所有 `.safetensors` 文件，加载它们，并返回 key 中包含 `vision_tower` 的权重值。
+
+    参数:
+    - model_path (str): Hugging Face 模型文件夹的路径。
+
+    返回:
+    - vision_tower_values (dict): 包含所有 `vision_tower` 相关的键和值的字典。
+    """
+    # 找到路径中的所有 `.safetensors` 文件
+    safetensor_files = [f for f in os.listdir(model_path) if f.endswith('.safetensors')]
+    
+    vision_tower_values = {}
+
+    # 遍历每个 `.safetensors` 文件
+    for safetensor_file in safetensor_files:
+        safetensor_path = os.path.join(model_path, safetensor_file)
+        
+        # 使用 safetensors 库打开并读取文件内容
+        with safe_open(safetensor_path, framework="pt", device=str(device)) as f:
+            for key in f.keys():
+                # 如果 key 中包含 `vision_tower`，将其加入结果字典
+                if 'vision_tower' in key:
+                    key_new = key.replace('model.vision_tower.vision_tower.', '')
+                    vision_tower_values[key_new] = f.get_tensor(key)
+
+    return vision_tower_values
 
 class CLIPVisionTower(nn.Module):
     def __init__(self, vision_tower, args, delay_load=False):
@@ -21,16 +53,23 @@ class CLIPVisionTower(nn.Module):
         else:
             self.cfg_only = CLIPVisionConfig.from_pretrained(self.vision_tower_name)
 
-    def load_model(self, device_map=None):
+    def load_model(self, device_map=None, model_path=None):
         if self.is_loaded:
             print('{} is already loaded, `load_model` called again, skipping.'.format(self.vision_tower_name))
             return
 
         self.image_processor = CLIPImageProcessor.from_pretrained(self.vision_tower_name)
-        # self.vision_tower = CLIPVisionModel.from_pretrained(self.vision_tower_name, device_map=device_map)
+        # self.[vision_tower] = CLIPVisionModel.from_pretrained(self.vision_tower_name, device_map=device_map)
 
         print('---------init adapt_vision_model---------')
         self.vision_tower = AdaptCLIPVisionModel.from_pretrained(self.vision_tower_name, device_map=device_map)
+        if model_path is None:
+            print('---------from frozen ckpt---------')
+        else:
+            print('---------from ft ckpt---------')
+            vision_tower_values = load_vision_tower_values(model_path, self.vision_tower.device)
+            load_info = self.vision_tower.load_state_dict(vision_tower_values, strict=False)
+            print(f'load info: {load_info}')
 
         self.vision_tower.requires_grad_(False)
 
@@ -46,19 +85,10 @@ class CLIPVisionTower(nn.Module):
             raise ValueError(f'Unexpected select feature: {self.select_feature}')
         return image_features
 
-    @torch.no_grad()
-    def forward(self, images):
-        
-        if type(images) is list:
-            image_features = []
-            for image in images:
-                image_forward_out = self.vision_tower(image.to(device=self.device, dtype=self.dtype).unsqueeze(0), output_hidden_states=True)
-                image_feature = self.feature_select(image_forward_out).to(image.dtype)
-                image_features.append(image_feature)
-        else:
-            image_forward_outs = self.vision_tower(images.to(device=self.device, dtype=self.dtype), output_hidden_states=True)
-            image_features = self.feature_select(image_forward_outs).to(images.dtype)
-
+    def forward(self, images, tgt_sizes): 
+        #FIXME the pooled_output here is incorrect for post_layernorm on padded features
+        image_forward_outs = self.vision_tower(images, tgt_sizes=tgt_sizes, output_hidden_states=True)
+        image_features = self.feature_select(image_forward_outs).to(images[0].dtype)
         return image_features
 
     @property

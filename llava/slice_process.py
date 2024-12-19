@@ -249,6 +249,22 @@ def resize_image_keep_ratio(image, max_size=1024):
     else:
         new_height = max_size
         new_width = int((max_size / original_height) * original_width)
+    if new_width > original_width:
+        resized_image = image.resize((new_width, new_height),  Image.Resampling.BICUBIC)
+    else:
+        resized_image = image
+    return resized_image
+
+
+def resize_image_keep_ratio_force(image, max_size=1024):
+    original_width, original_height = image.size
+    if original_width > original_height:
+        new_width = max_size
+        new_height = int((max_size / original_width) * original_height)
+    else:
+        new_height = max_size
+        new_width = int((max_size / original_height) * original_width)
+    
     resized_image = image.resize((new_width, new_height),  Image.Resampling.BICUBIC)
     return resized_image
 

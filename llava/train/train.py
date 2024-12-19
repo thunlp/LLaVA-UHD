@@ -36,9 +36,14 @@ from llava.model import *
 from llava.mm_utils import tokenizer_image_token
 from llava.slice_process import slice_image_minicpm, split_image, resize_image_keep_ratio
 
-from PIL import Image
+from PIL import Image, ImageFile
+#OSError: image file is truncated (141 bytes not processed)
+ImageFile.LOAD_TRUNCATED_IMAGES = True
+from llava.model.multimodal_encoder.hubconf import get_clipLarge_state_dict
+
 import random
 import math
+import gc
 
 local_rank = None
 
@@ -66,7 +71,10 @@ class ModelArguments:
     mm_use_im_patch_token: bool = field(default=True)
     mm_patch_merge_type: Optional[str] = field(default='flat')
     mm_vision_select_feature: Optional[str] = field(default="patch")
-
+    feature_mode: Optional[str] = field(default="uhd_v1") # uhd_v1, featup_muti_res
+    jbu_ckpt: Optional[str] = field(default="Path of JBU ckpt")
+    feature_scale_mask: Optional[int] = field(default=7) #Binary Mask Representation of Feature Scale Combination 1, (11)2, (111)2, (1111)2 means {1}, {1,2,3}, {1,2,3,4}, {1,2,3,4}
+    sft_encoder: bool = field(default=False)
 
 @dataclass
 class DataArguments:
@@ -113,8 +121,9 @@ class TrainingArguments(transformers.TrainingArguments):
     lora_weight_path: str = ""
     lora_bias: str = "none"
     mm_projector_lr: Optional[float] = None
+    mm_vision_tower_lr: Optional[float] = None
     group_by_modality_length: bool = field(default=False)
-
+    ddp_find_unused_parameters: bool = field(default=True)
 
 def maybe_zero_3(param, ignore_status=False, name=None):
     from deepspeed import zero
@@ -173,7 +182,7 @@ def get_mm_adapter_state_maybe_zero_3(named_params, keys_to_match):
 def find_all_linear_names(model):
     cls = torch.nn.Linear
     lora_module_names = set()
-    multimodal_keywords = ['mm_projector', 'vision_tower', 'vision_resampler']
+    multimodal_keywords = ['mm_projector', 'vision_tower','vision_resampler']
     for name, module in model.named_modules():
         if any(mm_keyword in name for mm_keyword in multimodal_keywords):
             continue
@@ -191,7 +200,7 @@ def safe_save_model_for_hf_trainer(trainer: transformers.Trainer,
     """Collects the state dict and dump to disk."""
 
     if getattr(trainer.args, "tune_mm_mlp_adapter", False):
-        # Only save Adapter
+        # Only save Adapter and cross attention projectors
         keys_to_match = ['mm_projector']
         if getattr(trainer.args, "use_im_start_end", False):
             keys_to_match.extend(['embed_tokens', 'embed_in'])
@@ -666,7 +675,14 @@ class LazySupervisedDataset(Dataset):
                  tokenizer: transformers.PreTrainedTokenizer,
                  data_args: DataArguments):
         super(LazySupervisedDataset, self).__init__()
-        list_data_dict = json.load(open(data_path, "r"))
+
+        if data_path.endswith(".jsonl"):
+            list_data_dict = []
+            with open(data_path, 'r') as f:
+                for line in f:
+                    list_data_dict.append(json.loads(line))
+        else:
+            list_data_dict = json.load(open(data_path, "r"))
 
         rank0_print("Formatting inputs...Skip in lazy mode")
         self.tokenizer = tokenizer
@@ -713,8 +729,9 @@ class LazySupervisedDataset(Dataset):
                 processor = self.data_args.image_processor
                 crop_size = self.data_args.image_processor.crop_size
                 image = Image.open(os.path.join(image_folder, image_file)).convert('RGB')
-
-                if 'textvqa' in image_file: 
+                
+                #for new sota datasets "TextVQA", old uhd datasets 'textvqa'
+                if 'TextVQA' in image_file or 'textvqa' in image_file: 
                     image = resize_image_keep_ratio(image, max_size=1024)
                 else:
                     _, temp_patches, _, _ = slice_image_minicpm(image, max_slice_nums=7, scale_resolution=336, patch_size=14, never_split=False)
@@ -772,8 +789,9 @@ class LazySupervisedDataset(Dataset):
                 data_dict['ind_tokens'] = []
                     
             return data_dict
-        except:
-            print('this iter is wrong in something... skip...')
+        except Exception as e:
+            print(f'The following error occurred: {str(e)}')
+            print('Skipping this iteration...')
             return self.__getitem__(i + 1)
 
 
@@ -828,6 +846,10 @@ def make_supervised_data_module(tokenizer: transformers.PreTrainedTokenizer,
 
 
 def train(attn_implementation=None):
+    os.environ["PYTOCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:128"
+    gc.collect()
+    torch.cuda.empty_cache()
+
     global local_rank
 
     parser = transformers.HfArgumentParser(
@@ -846,7 +868,8 @@ def train(attn_implementation=None):
             quantization_config=BitsAndBytesConfig(
                 load_in_4bit=training_args.bits == 4,
                 load_in_8bit=training_args.bits == 8,
-                llm_int8_skip_modules=["mm_projector"],
+                llm_int8_skip_modules=["mm_projector","vlm_uni_query_projector", 
+                                       "vlm_uni_aux_projector", "vlm_uni_val_projector"],
                 llm_int8_threshold=6.0,
                 llm_int8_has_fp16_weight=False,
                 bnb_4bit_compute_dtype=compute_dtype,
@@ -950,11 +973,20 @@ def train(attn_implementation=None):
             conversation_lib.default_conversation = conversation_lib.conv_templates["vicuna_v1"]
 
     if model_args.vision_tower is not None:
+        model.config.feature_mode = model_args.feature_mode
+        model.config.feature_scale_mask = model_args.feature_scale_mask
+        model.config.jbu_ckpt = model_args.jbu_ckpt
+        
         model.get_model().initialize_vision_modules(
             model_args=model_args,
             fsdp=training_args.fsdp
         )
-        
+
+        if model_args.feature_mode == 'featup_muti_res':
+            state_dict = get_clipLarge_state_dict(model_args.jbu_ckpt)
+            model.get_model().mm_projector.upsampler.load_state_dict(state_dict, strict=False)
+            model.get_model().mm_projector.upsampler.to(training_args.device)
+
         vision_tower = model.get_vision_tower()
         vision_tower.to(dtype=torch.bfloat16 if training_args.bf16 else torch.float16, device=training_args.device)
 
@@ -966,6 +998,7 @@ def train(attn_implementation=None):
         model.config.tokenizer_model_max_length = tokenizer.model_max_length
 
         model.config.tune_mm_mlp_adapter = training_args.tune_mm_mlp_adapter = model_args.tune_mm_mlp_adapter
+
         if model_args.tune_mm_mlp_adapter:
             model.requires_grad_(False)
             for p in model.get_model().mm_projector.parameters():
@@ -976,11 +1009,32 @@ def train(attn_implementation=None):
             for p in model.get_model().mm_projector.parameters():
                 p.requires_grad = False
 
+        #set encoder's requires_grad
+        if model_args.feature_mode == 'featup_muti_res':
+            for p in model.get_model().mm_projector.upsampler.parameters():
+                p.requires_grad = False
+            for p in model.get_model().mm_projector.upsampler.upsampler.fixup_proj.parameters():
+                p.requires_grad = model_args.sft_encoder
+        model.get_model().vision_tower.requires_grad_(model_args.sft_encoder)
+        
+
+        for n, p in model.get_model().named_parameters():
+            if p.requires_grad:
+                print(n)    
+        for n, p in model.lm_head.named_parameters():
+            if p.requires_grad:
+                print(f'lm_head.{n}')
+
+
         if training_args.bits in [4, 8]:
             model.get_model().mm_projector.to(dtype=compute_dtype, device=training_args.device)
+            model.get_model().vlm_uni_query_projector.to(dtype=compute_dtype, device=training_args.device)
+            model.get_model().vlm_uni_aux_projector.to(dtype=compute_dtype, device=training_args.device)
+            model.get_model().vlm_uni_val_projector.to(dtype=compute_dtype, device=training_args.device)
 
         model.config.mm_use_im_start_end = data_args.mm_use_im_start_end = model_args.mm_use_im_start_end
         model.config.mm_projector_lr = training_args.mm_projector_lr
+        model.config.mm_vision_tower_lr = training_args.mm_vision_tower_lr
         training_args.use_im_start_end = model_args.mm_use_im_start_end
         model.config.mm_use_im_patch_token = model_args.mm_use_im_patch_token
         model.initialize_vision_tokenizer(model_args, tokenizer=tokenizer)

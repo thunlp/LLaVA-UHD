@@ -3,6 +3,7 @@ import torch.nn as nn
 import re
 import math
 from .adapt_spatial_resampler import AdaptSpatialResampler
+from .uhd_v1_resampler import AdaptSpatialResampler_v1
 
 class IdentityMap(nn.Module):
     def __init__(self):
@@ -53,13 +54,27 @@ def build_vision_projector(config, delay_load=False, **kwargs):
     if projector_type == 'adapt_spatial_resampler':
         target_sequence_length = 144
         grid_size = int(math.sqrt(target_sequence_length))
+
         resampler = AdaptSpatialResampler(
+            config=config,
+            grid_size=grid_size,
+            embed_dim = config.hidden_size,
+            num_heads = config.hidden_size // 128,
+            kv_dim=config.mm_hidden_size
+        )
+        return resampler
+    
+    if projector_type == 'adapt_spatial_resampler_v1':
+        target_sequence_length = 144
+        grid_size = int(math.sqrt(target_sequence_length))
+        resampler = AdaptSpatialResampler_v1(
             grid_size=grid_size,
             embed_dim = config.hidden_size,
             num_heads = config.hidden_size // 128,
             kv_dim=config.mm_hidden_size,
         )
         return resampler
+    
     raise ValueError(f'Unknown projector type: {projector_type}')
 
 

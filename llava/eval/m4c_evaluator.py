@@ -248,8 +248,8 @@ class TextVQAAccuracyEvaluator:
     def eval_pred_list(self, pred_list):
         pred_scores = []
         for entry in tqdm(pred_list):
-            pred_answer = self.answer_processor(entry["pred_answer"])
             unique_answer_scores = self._compute_answer_scores(entry["gt_answers"])
+            pred_answer = self.answer_processor(entry["pred_answer"])
             score = unique_answer_scores.get(pred_answer, 0.0)
             pred_scores.append(score)
 
@@ -263,10 +263,15 @@ class STVQAAccuracyEvaluator:
 
     def eval_pred_list(self, pred_list):
         pred_scores = []
+        import csv
         for entry in pred_list:
             pred_answer = self.answer_processor(entry["pred_answer"])
             gts = [self.answer_processor(a) for a in entry["gt_answers"]]
             score = 1.0 if pred_answer in gts else 0.0
+            with open('./output.csv', mode='a', newline='') as file:
+                writer = csv.writer(file)
+                # Write the row to the CSV file
+                writer.writerow([pred_answer, gts, score])
             pred_scores.append(score)
 
         accuracy = sum(pred_scores) / len(pred_scores)
@@ -288,11 +293,17 @@ class STVQAANLSEvaluator:
 
     def eval_pred_list(self, pred_list):
         pred_scores = []
+        import csv
         for entry in pred_list:
             anls = max(
                 self.get_anls(entry["pred_answer"], gt) for gt in entry["gt_answers"]
             )
             pred_scores.append(anls)
+            
+            with open('./output.csv', mode='a', newline='') as file:
+                writer = csv.writer(file)
+                # Write the row to the CSV file
+                writer.writerow([entry["pred_answer"], entry["gt_answers"], anls])
 
         accuracy = sum(pred_scores) / len(pred_scores)
         return accuracy

@@ -31,7 +31,7 @@ def eval_model(args):
     disable_torch_init()
     model_path = os.path.expanduser(args.model_path)
     model_name = get_model_name_from_path(model_path)
-    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name)
+    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name, _args=args)
 
     questions = [json.loads(q) for q in open(os.path.expanduser(args.question_file), "r")]
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx)
@@ -96,6 +96,7 @@ if __name__ == "__main__":
     parser.add_argument("--temperature", type=float, default=0.2)
     parser.add_argument("--top_p", type=float, default=None)
     parser.add_argument("--num_beams", type=int, default=1)
+    parser.add_argument("--fted_encoder", type=bool, default=True)
     args = parser.parse_args()
 
     eval_model(args)

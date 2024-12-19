@@ -51,29 +51,17 @@ class CustomDataset(Dataset):
         conv.append_message(conv.roles[0], qs)
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
-
         image = Image.open(os.path.join(self.image_folder, image_file)).convert('RGB')
-        # image_tensor = process_images([image], self.image_processor, self.model_config)[0]
 
-        # 2x2切片
-        # image = expand2square(image, tuple(int(x*255) for x in processor.image_mean))
-        # sub_images = split_image(image, scale=672, grid=(2, 2))
-        # sub_images.append(image)
-        # image = sub_images
-        # image = processor.preprocess(image, return_tensors='pt')['pixel_values'] # bs, 3, h, w
-        # image_tensor = image.flatten(0, 1)
-
-        # adapt
-        # image, _, _, _ = slice_image_minicpm(
-        #     image, max_slice_nums=7, scale_resolution=336, patch_size=14, never_split=False)
-        # image = processor.preprocess(image, do_resize=False, do_center_crop=False, 
-        #                             do_rescale=True, do_normalize=True, return_tensors='pt')['pixel_values'][0]
-        # image_tensor = image
-
-        image = resize_image_keep_ratio(image, max_size=1024)
+        if ('mme' in self.image_folder) or ('ai2d' in self.image_folder):
+            image = image
+        elif 'textvqa' in self.image_folder:
+            image = resize_image_keep_ratio(image, max_size=1536)
+        else:
+            image = resize_image_keep_ratio(image, max_size=1024)
 
         source_image, patches, best_grid, ind_tokens = slice_image_minicpm(
-            image, max_slice_nums=7, scale_resolution=336, patch_size=14, never_split=False)
+            image, max_slice_nums=9, scale_resolution=336, patch_size=14, never_split=False)
 
         if best_grid is None: #说明没有切片
             source_tensors = processor.preprocess(source_image, do_resize=False, do_center_crop=False, 
@@ -119,7 +107,7 @@ def eval_model(args):
     disable_torch_init()
     model_path = os.path.expanduser(args.model_path)
     model_name = get_model_name_from_path(model_path)
-    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name)
+    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name, _args=args)
 
     questions = [json.loads(q) for q in open(os.path.expanduser(args.question_file), "r")]
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx)
@@ -182,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--top_p", type=float, default=None)
     parser.add_argument("--num_beams", type=int, default=1)
     parser.add_argument("--max_new_tokens", type=int, default=128)
+    parser.add_argument("--fted_encoder", type=bool, default=True)
     args = parser.parse_args()
 
     eval_model(args)

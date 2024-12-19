@@ -57,7 +57,7 @@ def eval_model(args):
     disable_torch_init()
     model_path = os.path.expanduser(args.model_path)
     model_name = get_model_name_from_path(model_path)
-    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name)
+    tokenizer, model, image_processor, context_len = load_pretrained_model(model_path, args.model_base, model_name, _args=args)
 
     questions = pd.read_table(os.path.expanduser(args.question_file))
     questions = get_chunk(questions, args.num_chunks, args.chunk_idx)
@@ -111,7 +111,7 @@ def eval_model(args):
             # image = resize_image_keep_ratio(image, max_size=1024)
             # minicpm-v
             source_image, patches, best_grid, ind_tokens = slice_image_minicpm(
-                image, max_slice_nums=7, scale_resolution=336, patch_size=14, never_split=False)
+                image, max_slice_nums=9, scale_resolution=336, patch_size=14, never_split=False)
             image_sizes = [source_image.size]
             processor = image_processor
             if best_grid is None: #说明没有切片
@@ -181,6 +181,7 @@ if __name__ == "__main__":
     parser.add_argument("--all-rounds", action="store_true")
     parser.add_argument("--single-pred-prompt", action="store_true")
     parser.add_argument("--lang", type=str, default="en")
+    parser.add_argument("--fted_encoder", type=bool, default=True)
     args = parser.parse_args()
 
     eval_model(args)

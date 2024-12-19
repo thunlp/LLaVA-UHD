@@ -18,14 +18,13 @@ from abc import ABC, abstractmethod
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import numpy as np
 from .multimodal_encoder.builder import build_vision_tower
 from .multimodal_projector.builder import build_vision_projector
 
 from llava.constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
-
-from llava.mm_utils import get_anyres_image_grid_shape
-
+import torch
+import time
 
 class LlavaMetaModel:
 
@@ -35,7 +34,6 @@ class LlavaMetaModel:
         if hasattr(config, "mm_vision_tower"):
             self.vision_tower = build_vision_tower(config, delay_load=True)
             self.mm_projector = build_vision_projector(config)
-
             if 'unpad' in getattr(config, 'mm_patch_merge_type', ''):
                 self.image_newline = nn.Parameter(
                     torch.empty(config.hidden_size, dtype=self.dtype)
@@ -89,45 +87,20 @@ class LlavaMetaModel:
             # In case it is frozen by LoRA
             for p in self.mm_projector.parameters():
                 p.requires_grad = True
+            for p in self.vlm_uni_query_projector.parameters():
+                p.requires_grad = True
+            for p in self.vlm_uni_aux_projector.parameters():
+                p.requires_grad = True
+            for p in self.vlm_uni_val_projector.parameters():
+                p.requires_grad = True
 
         if pretrain_mm_mlp_adapter is not None:
             mm_projector_weights = torch.load(pretrain_mm_mlp_adapter, map_location='cpu')
             def get_w(weights, keyword):
                 return {k.split(keyword + '.')[1]: v for k, v in weights.items() if keyword in k}
 
-            self.mm_projector.load_state_dict(get_w(mm_projector_weights, 'mm_projector'))
-
-
-def unpad_image(tensor, original_size):
-    """
-    Unpads a PyTorch tensor of a padded and resized image.
-
-    Args:
-    tensor (torch.Tensor): The image tensor, assumed to be in CxHxW format.
-    original_size (tuple): The original size of PIL image (width, height).
-
-    Returns:
-    torch.Tensor: The unpadded image tensor.
-    """
-    original_width, original_height = original_size
-    current_height, current_width = tensor.shape[1:]
-
-    original_aspect_ratio = original_width / original_height
-    current_aspect_ratio = current_width / current_height
-
-    if original_aspect_ratio > current_aspect_ratio:
-        scale_factor = current_width / original_width
-        new_height = int(original_height * scale_factor)
-        padding = (current_height - new_height) // 2
-        unpadded_tensor = tensor[:, padding:current_height - padding, :]
-    else:
-        scale_factor = current_height / original_height
-        new_width = int(original_width * scale_factor)
-        padding = (current_width - new_width) // 2
-        unpadded_tensor = tensor[:, :, padding:current_width - padding]
-
-    return unpadded_tensor
-
+            mm_projector_weights = torch.load(pretrain_mm_mlp_adapter, map_location='cpu')
+            self.mm_projector.load_state_dict(get_w(mm_projector_weights, 'mm_projector'), strict=False)
 
 class LlavaMetaForCausalLM(ABC):
 
@@ -137,6 +110,15 @@ class LlavaMetaForCausalLM(ABC):
 
     def get_vision_tower(self):
         return self.get_model().get_vision_tower()
+    def llava_features(self, images):
+        image_features = self.get_model().get_vision_tower()(images) #torch.Size([1, 576, 1024])
+        return image_features
+    def get_features(self, images): #torch.Size([1, 3, 336, 336])
+        feature_mode =  getattr(self.config, 'feature_mode', 'uhd_v1')
+        if feature_mode == 'uhd_v1':
+            return self.llava_features(images)
+        else:
+            raise ValueError(f"Unexpected feature_mode: {feature_mode}")
 
     def concat_src_patch_images(self, images, patch_images, ind_tokens):
         all_images = []
@@ -186,7 +168,16 @@ class LlavaMetaForCausalLM(ABC):
         num_images = [len(ind_token) + 1 for ind_token in ind_tokens]
         # concat images
         images, patch_sizes = self.concat_src_patch_images(images, patch_images, ind_tokens)
-        image_features = self.get_model().get_vision_tower()(images)
+        tgt_sizes = torch.tensor(patch_sizes, dtype=torch.long, device=images[0].device)
+        features = self.get_model().get_vision_tower()(images, tgt_sizes) #list torch.Size([1, 550, 1024])
+
+        image_features = [] #list torch.Size([1, 1024, 25, 22])
+        for i in range(len(features)):
+            h, w = patch_sizes[i]
+            feature = features[i][:h * w, :].unsqueeze(0)
+            # feature = feature.permute(0, 2, 1)  #torch.Size([1, 1024, 25*22])
+            # feature = feature.unflatten(2, [h, w])  #torch.Size([1, 1024, 25, 22])
+            image_features.append(feature)
 
         projected_image_features = []
         for image_feature, patch_size in zip(image_features, patch_sizes):
@@ -197,6 +188,19 @@ class LlavaMetaForCausalLM(ABC):
         # chunk features
         projected_image_features = self.partition_list(projected_image_features, num_images)
         return projected_image_features
+    
+    
+    def encode_images_muti_res(self, images, patch_images, ind_tokens):
+        # start = time.time()
+        num_images = [len(ind_token) + 1 for ind_token in ind_tokens]
+        # concat images
+        images, patch_sizes = self.concat_src_patch_images(images, patch_images, ind_tokens)
+
+        tgt_sizes = torch.tensor(patch_sizes, dtype=torch.long, device=images[0].device)
+
+        features_1x = self.get_model().get_vision_tower()(images, tgt_sizes) #list torch.Size([1, 550, 1024])
+
+        return self.get_model().mm_projector.forward_with_featup(features_1x, patch_sizes, images, num_images)
 
     def prepare_inputs_labels_for_multimodal(
         self, input_ids, position_ids, attention_mask, past_key_values, labels,
@@ -206,7 +210,11 @@ class LlavaMetaForCausalLM(ABC):
         if vision_tower is None or images is None or input_ids.shape[1] == 1:
             return input_ids, position_ids, attention_mask, past_key_values, None, labels
 
-        image_features = self.encode_images(images, patch_images, ind_tokens)
+        feature_mode =  getattr(self.config, 'feature_mode', 'uhd_v1')
+        if feature_mode == 'featup_muti_res':
+            image_features = self.encode_images_muti_res(images, patch_images, ind_tokens)
+        else:
+            image_features = self.encode_images(images, patch_images, ind_tokens)
 
         # TODO: image start / end is not implemented here to support pretraining.
         if getattr(self.config, 'tune_mm_mlp_adapter', False) and getattr(self.config, 'mm_use_im_start_end', False):
@@ -277,13 +285,68 @@ class LlavaMetaForCausalLM(ABC):
                     if len(cur_ind_tokens_embeds) == 0: # 没有切片
                         cur_image_features = cur_image_features[-1]
                     else:
-                        abs_image_features = cur_image_features[-1]
-                        slice_image_features = cur_image_features[:-1]
-                        _cur_image_features = []
-                        for image_feature_, ind_token_embeds_ in zip(slice_image_features, cur_ind_tokens_embeds):
-                            _cur_image_features.append(torch.cat([image_feature_, ind_token_embeds_[None]], dim=0))
-                        _cur_image_features.append(abs_image_features)
-                        cur_image_features = torch.cat(_cur_image_features, dim=0)
+                        # whether not use the permute strategy
+                        PERMUTE_STRATEGY = True
+                        if not PERMUTE_STRATEGY:
+                            abs_image_features = cur_image_features[-1]
+                            slice_image_features = cur_image_features[:-1]
+                            _cur_image_features = []
+                            for image_feature_, ind_token_embeds_ in zip(slice_image_features, cur_ind_tokens_embeds):
+                                _cur_image_features.append(torch.cat([image_feature_, ind_token_embeds_[None]], dim=0))
+                            _cur_image_features.append(abs_image_features)
+                            cur_image_features = torch.cat(_cur_image_features, dim=0)
+                        else:
+                            # import pdb;pdb.set_trace()
+                            abs_image_features = cur_image_features[-1]
+                            slice_image_features = cur_image_features[:-1] # list
+                            
+                            slice_image_features_with_batch = [slice_feat.unsqueeze(0) for slice_feat in slice_image_features]
+                            
+                            slice_image_features_with_batch = torch.cat(slice_image_features_with_batch, dim=0)
+                            slice_number, grid , channels = slice_image_features_with_batch.shape
+                            edge = int(grid ** 0.5)
+                            
+                            # slice_number_check = len(cur_ind_tokens)
+                            assert slice_number == len(cur_ind_tokens), "slice_number != len(cur_ind_tokens)"
+                            
+                            slice_in_row = 0
+                            for i in range(slice_number):
+                                if cur_ind_tokens[i] == 29892:
+                                    slice_in_row += 1
+                                elif cur_ind_tokens[i] == 13:
+                                    slice_in_row += 1
+                                    break
+                                else:
+                                    raise ValueError(f"Unexpected ind_token: {cur_ind_tokens[i]}")
+                            assert slice_in_row >= 1, "no slices at all!"
+                            slice_in_column = slice_number // slice_in_row
+                            h_w_ratio = (slice_in_column*1.0) / slice_in_row
+                            if h_w_ratio > 1:
+                                ori_patch_size = (edge, int(edge/h_w_ratio))
+                            else:
+                                ori_patch_size = (int(edge*h_w_ratio), edge)
+                            # import pdb;pdb.set_trace()
+                            # 144, 4096
+                            abs_image_features= abs_image_features.reshape(edge, edge, channels).permute(2, 0, 1).unsqueeze(0)
+                            # abs_image_features = F.interpolate(abs_image_features, size=ori_patch_size, mode='bilinear', align_corners=False)
+                            abs_image_features = abs_image_features.squeeze(0).permute(1, 2, 0).reshape(-1, channels)
+                            
+                            # slice_in_row: how many slices in a row
+                            # slice_in_column: how many slices in a column
+                            # slice_number: how many slices in total
+                            comma_notation = cur_ind_tokens_embeds[0] # what does a comma say in embed
+                            enter_notation = cur_ind_tokens_embeds[slice_in_row-1] # what does a enter say in embed
+                            
+                            slice_stack = slice_image_features_with_batch.reshape(slice_in_column, slice_in_row, edge, edge, channels)
+                            slice_stack = slice_stack.permute(0, 2, 1, 3, 4).reshape(slice_in_column * edge, slice_in_row * edge, channels)
+                            # import pdb;pdb.set_trace()
+                            enter_notation = enter_notation.unsqueeze(0).unsqueeze(0).expand(slice_in_column * edge, -1, -1)
+                            slice_stack = torch.cat([slice_stack, enter_notation], dim=1)  
+                            slice_stack = slice_stack.reshape(-1, channels)
+                            
+                            
+                            cur_image_features = torch.cat([slice_stack, comma_notation[None], abs_image_features], dim=0)
+                            
 
                     cur_new_input_embeds.append(cur_image_features)
                     cur_new_labels.append(torch.full((cur_image_features.shape[0],), IGNORE_INDEX, device=cur_labels.device, dtype=cur_labels.dtype))
