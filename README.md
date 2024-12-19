@@ -62,8 +62,10 @@ or submit issues in our repository.
 1. **JBU module pre-training Data**:
 Download [MS-COCO stuff 2017](https://github.com/nightrome/cocostuff).
 2. **Pretraining Data**: Download the 558K subset of the LAION-CC-SBU dataset with BLIP captions we use in the paper [here](https://huggingface.co/datasets/liuhaotian/LLaVA-Pretrain).
-And put the data into ```./playground/data```. Also could refer to the documentation of [LLaVA](https://github.com/haotian-liu/LLaVA) for detailed data organization.
-3. **Fine-tuning Data**: Please download the annotation of the final mixture our instruction tuning data [llava-uhd-v2-sft-data.json](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data/llava-uhd-v2-sft-data.json), and download the datasets[LLaVA-UHD-v2-SFT-Data](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data), place them in the ```./playground/data```
+And put the data into ```./playground/data```. 
+3. **Fine-tuning Data**: Please download all images and the instruction-tuning annotations ```llava-uhd-v2-sft-data.json``` in [LLaVA-UHD-v2-SFT-Data](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data). And place them in the ```./playground/data```.
+
+We organize the data like the official code of [LLaVA](https://github.com/haotian-liu/LLaVA). If necessary, you can refer to it.
 
 ## Training Script
 1. **JBU module pre-training**:
@@ -111,7 +113,13 @@ For using **LLaVA-UHD v1**, You can follow the original project instruction and 
 ## Citation
 If you find LLaVA-UHD v2 useful for your research and applications, please cite using this BibTeX:
 ```bibtex
-@article{zhang2024llavauhdv2mllmintegrating,
+@inproceedings{guo2024llava-uhd,
+  title={{LLaVA-UHD}: an LMM Perceiving Any Aspect Ratio and High-Resolution Images},
+  author={Guo, Zonghao and Xu, Ruyi and Yao, Yuan and Cui, Junbo and Ni, Zanlin and Ge, Chunjiang and Chua, Tat-Seng and Liu, Zhiyuan and Huang, Gao},
+  booktitle={ECCV},
+  year={2024}
+}
+@article{zhang2024llavauhdv2,
   title={LLaVA-UHD v2: an MLLM Integrating High-Resolution Feature Pyramid via Hierarchical Window Transformer},
   author={Yipeng Zhang and Yifan Liu and Zonghao Guo and Yidan Zhang and Xuesong Yang and Chi Chen and Jun Song and Bo Zheng and Yuan Yao and Zhiyuan Liu and Tat-Seng Chua and Maosong Sun},
   journal={arXiv preprint arXiv:2412.13871},
