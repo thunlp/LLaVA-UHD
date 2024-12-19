@@ -60,7 +60,7 @@ or submit issues in our repository.
 
 ## Data Preparing
 1. **JBU module pre-training Data**:
-Download MS-COCO stuff 2017.
+Download [MS-COCO stuff 2017](https://github.com/nightrome/cocostuff).
 2. **Pretraining Data**: Download the 558K subset of the LAION-CC-SBU dataset with BLIP captions we use in the paper [here](https://huggingface.co/datasets/liuhaotian/LLaVA-Pretrain).
 And put the data into ```./playground/data```. Also could refer to the documentation of [LLaVA](https://github.com/haotian-liu/LLaVA) for detailed data organization.
 3. **Fine-tuning Data**: Please download the annotation of the final mixture our instruction tuning data [llava-uhd-v2-sft-data.json](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data/llava-uhd-v2-sft-data.json), and download the datasets[LLaVA-UHD-v2-SFT-Data](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data), place them in the ```./playground/data```
