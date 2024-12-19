@@ -93,7 +93,10 @@ For details of data organization, please refer to [here](https://github.com/haot
 We provide the same script to complete the testing.
 
 **2. VLMEvalKit**:
-We use [VLMEvalKit](https://github.com/open-compass/VLMEvalKit) to evaluete **OCR-Bench, MMMU-val, SEED-Image, MMB, RealWorldQA, HR-Bench**. We integrate VLMEvalKit into this repository for better reproducibility.
+We use [VLMEvalKit](https://github.com/open-compass/VLMEvalKit) to evaluete **OCR-Bench, MMMU-val, SEED-Image, MMB, RealWorldQA, HR-Bench**. We integrate VLMEvalKit into this repository for better reproducibility. You can follow the setup instruction of [VLMEvalKit](https://github.com/open-compass/VLMEvalKit), and evaluate our model with this scripts:
+```bash
+sh VLMEvalKit/eval.sh
+```
 
 
 ## LLaVA-UHD v1
