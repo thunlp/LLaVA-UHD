@@ -91,8 +91,9 @@ sh eval.sh dir_name_in_checkpoints_new
 # e.g. sh eval.sh llava-uhd-144-7b
 # llava-uhd-144-7b is the dir_name stored in the path of ./checkpoints_new
 ```
-For details of data organization, please refer to [here](https://github.com/haotian-liu/LLaVA/blob/main/docs/Evaluation.md) for help. 
-We provide the same script to complete the testing.
+Details of data organization:
+1. please refer to [here](https://github.com/haotian-liu/LLaVA/blob/main/docs/Evaluation.md) for help.  We provide the same script to complete the testing.
+2. For DocVQA, ChartVQA, TextVQA, please download images from [ureader-instruction-1.0](https://huggingface.co/datasets/Mizukiluke/ureader-instruction-1.0), and download the annotations from [LLaVA-UHD-v2-Evaluation](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-Evaluation), which are also constructed from [ureader-instruction-1.0](https://huggingface.co/datasets/Mizukiluke/ureader-instruction-1.0).
 
 **2. VLMEvalKit**:
 We use [VLMEvalKit](https://github.com/open-compass/VLMEvalKit) to evaluete **OCR-Bench, MMMU-val, SEED-Image, MMB, RealWorldQA, HR-Bench**. We integrate VLMEvalKit into this repository for better reproducibility. You can follow the setup instruction of [VLMEvalKit](https://github.com/open-compass/VLMEvalKit), and evaluate our model with this scripts:
