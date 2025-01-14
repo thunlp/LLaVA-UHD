@@ -12,6 +12,12 @@ Notably, our model built on **LLaVA-UHD**, brings an average boost of 3.7% acros
 method, 9.3% on DocVQA for instance. 
 Visit our 📃 [paper](https://arxiv.org/pdf/2412.13871) here!
 
+## News
+-[2025/01/13] 🔥🔥🔥 **MiniCPM-o 2.6** is open-sourced, which matches **GPT-4o-202405** on vision, speech and multimodal live streaming. It advances popular capabitlies of MiniCPM-V 2.6, and supports various new fun features. Congratulations!!! 🎉🎉🎉 Our **LLaVA-UHD v2** has been applied as the foundational image perception module in  **MiniCPM-o 2.6**. Try it now! 
+
+[code](https://github.com/OpenBMB/MiniCPM-o)
+
+[checkpoint](https://github.com/OpenBMB/MiniCPM-o)
 
 ## Overview
 
