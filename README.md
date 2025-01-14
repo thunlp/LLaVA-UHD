@@ -8,8 +8,6 @@ Window Transformer**
 </div>
 
 ## News
--[2025/01/13] 🔥🔥🔥 **MiniCPM-o 2.6** is [open-sourced](https://github.com/OpenBMB/MiniCPM-o), which matches **GPT-4o-202405** on vision, speech and multimodal live streaming. It advances popular capabitlies of MiniCPM-V 2.6, and supports various new fun features. Congratulations!!! 🎉🎉🎉 Our **LLaVA-UHD v2** has been applied as the foundational image perception module in  **MiniCPM-o 2.6**. Try it now! 
-
 -[2024/12/19] 🔥LLaVA-UHD v2 achieves achieves superior
 performance over existing MLLMs on 13 popular benchmarks. 
 Notably, our design
