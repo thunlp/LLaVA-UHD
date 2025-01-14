@@ -7,19 +7,28 @@ High-Resolution Feature Pyramid via Hierarchical
 Window Transformer**
 </div>
 
-This repository hosts the code, data, and model weight of **LLaVA-UHD v2**, an advanced MLLM centered around a Hierarchical window transformer that enables capturing diverse visual granularity by constructing and integrating a high resolution feature pyramid. 
+## News
+-[2025/01/13] 🔥🔥🔥 **MiniCPM-o 2.6** is [open-sourced](https://github.com/OpenBMB/MiniCPM-o), which matches **GPT-4o-202405** on vision, speech and multimodal live streaming. It advances popular capabitlies of MiniCPM-V 2.6, and supports various new fun features. Congratulations!!! 🎉🎉🎉 Our **LLaVA-UHD v2** has been applied as the foundational image perception module in  **MiniCPM-o 2.6**. Try it now! 
+
+-[2024/12/19] 🔥LLaVA-UHD v2 achieves achieves superior
+performance over existing MLLMs on 13 popular benchmarks. 
+Notably, our design
+brings an average boost of 3.7% across 14 benchmarks compared with the baseline
+method(LLaVA-UHD), 9.3% on DocVQA for instance.
+ [Model checkpoints](https://huggingface.co/YipengZhang/LLaVA-UHD-v2) and [LLaVA-UHD-v2-SFT-Data](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data) are available in huggingface.
+
+-[2024/07/29] LLaVA-UHD achieves performance improvement on 8 common benchmarks beyong LLaVA-1.5. 
+Our novel projector, **spatially constrained resampler**, realizes high feature compression and convergence efficiency. 
+Model checkpoints are available in [hugging-face](https://huggingface.co/guozonghao96/llava-uhd-144-13b).
+You can find the original project instruction and code of **LLaVA-UHD** in branch `LLaVA-UHD-v1`
+
+-[2024/07/01] 📢[LLaVA-UHD](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11080.pdf) is accepted by ECCV2024.
+
+## Overview
+**LLaVA-UHD v2**, an advanced MLLM centered around a Hierarchical window transformer that enables capturing diverse visual granularity by constructing and integrating a high resolution feature pyramid. 
 Notably, our model built on **LLaVA-UHD**, brings an average boost of 3.7% across 14 benchmarks compared with the baseline
 method, 9.3% on DocVQA for instance. 
 Visit our 📃 [paper](https://arxiv.org/pdf/2412.13871) here!
-
-## News
--[2025/01/13] 🔥🔥🔥 **MiniCPM-o 2.6** is open-sourced, which matches **GPT-4o-202405** on vision, speech and multimodal live streaming. It advances popular capabitlies of MiniCPM-V 2.6, and supports various new fun features. Congratulations!!! 🎉🎉🎉 Our **LLaVA-UHD v2** has been applied as the foundational image perception module in  **MiniCPM-o 2.6**. Try it now! 
-
-[code](https://github.com/OpenBMB/MiniCPM-o)
-
-[checkpoint](https://github.com/OpenBMB/MiniCPM-o)
-
-## Overview
 
 ![The LLaVA-UHD framework](doc/arch.png)
 
@@ -34,22 +43,6 @@ an image pyramid
 (ii) **hierarchical window attention**, focusing on a set of
 key sampling features within cross-scale windows to condense multi-level feature
 maps. ![The Hierarchical Window Attention](doc/HiWin.png)
-
-
-## Release
--[2024/12/19] 🔥LLaVA-UHD v2 achieves achieves superior
-performance over existing MLLMs on 13 popular benchmarks. 
-Notably, our design
-brings an average boost of 3.7% across 14 benchmarks compared with the baseline
-method(LLaVA-UHD), 9.3% on DocVQA for instance.
- [Model checkpoints](https://huggingface.co/YipengZhang/LLaVA-UHD-v2) and [LLaVA-UHD-v2-SFT-Data](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data) are available in huggingface.
-
--[2024/07/29] LLaVA-UHD achieves performance improvement on 8 common benchmarks beyong LLaVA-1.5. 
-Our novel projector, **spatially constrained resampler**, realizes high feature compression and convergence efficiency. 
-Model checkpoints are available in [hugging-face](https://huggingface.co/guozonghao96/llava-uhd-144-13b).
-You can find the original project instruction and code of **LLaVA-UHD** in branch `LLaVA-UHD-v1`
-
--[2024/07/01] 📢[LLaVA-UHD](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11080.pdf) is accepted by ECCV2024.
 
 ## Environment Preparing
 1. To reproduce the results of the paper, please set up the Python environment using the following code:
