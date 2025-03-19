@@ -393,7 +393,7 @@ class JBUFeatUp(pl.LightningModule):
         return torch.optim.NAdam(all_params, lr=self.lr)
 
 
-@hydra.main(config_path="configs", config_name="jbu_upsampler")
+@hydra.main(config_path="configs", config_name="vdim_upsampler")
 def my_app(cfg: DictConfig) -> None:
     print(OmegaConf.to_yaml(cfg))
     print(cfg.output_root)
