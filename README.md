@@ -2,14 +2,12 @@
   
 # LLaVA-UHD v2
 
-**LLaVA-UHD v2: an MLLM Integrating
-High-Resolution Feature Pyramid via Hierarchical
-Window Transformer**
+**LLaVA-UHD v2: an MLLM Integrating High-Resolution Semantic Pyramid via Hierarchical Window Transformer**
 </div>
 
 ## News
 -[2024/12/19] 🔥LLaVA-UHD v2 achieves achieves superior
-performance over existing MLLMs on 13 popular benchmarks. 
+performance over existing MLLMs on 15 popular benchmarks. 
 Notably, our design
 brings an average boost of 3.7% across 14 benchmarks compared with the baseline
 method(LLaVA-UHD), 9.3% on DocVQA for instance.
@@ -23,7 +21,8 @@ You can find the original project instruction and code of **LLaVA-UHD** in branc
 -[2024/07/01] 📢[LLaVA-UHD](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11080.pdf) is accepted by ECCV2024.
 
 ## Overview
-**LLaVA-UHD v2**, an advanced MLLM centered around a Hierarchical window transformer that enables capturing diverse visual granularity by constructing and integrating a high resolution feature pyramid. 
+**LLaVA-UHD v2**, an MLLM with advanced perception abilities by introducing a well-designed vision-language projector, the Hierarchical window (Hiwin) transformer. Hiwin transformer enhances MLLM's ability to capture diverse multi-modal visual granularities, by incorporating 
+our constructed high-resolution semantic pyramid. 
 Notably, our model built on **LLaVA-UHD**, brings an average boost of 3.7% across 14 benchmarks compared with the baseline
 method, 9.3% on DocVQA for instance. 
 Visit our 📃 [paper](https://arxiv.org/pdf/2412.13871) here!
@@ -32,15 +31,12 @@ Visit our 📃 [paper](https://arxiv.org/pdf/2412.13871) here!
 
 LLaVA-UHD v2 includes two key components: 
 
-(i) an inverse feature pyramid, constructed by
-a ViT-derived feature up-sampling process utilizing high-frequency details from
-an image pyramid
+(i) **Visual detail injection module**, which progressively injects low-level visual details into high-level language-aligned semantics features, thereby forming an inverse semantic pyramid (ISP),
+and
 ![pyramid](doc/pyramid.png)
-![jbu-visual](doc/jbu-visual.png)
+![vdim-visual](doc/jbu-visual.png)
 
-(ii) **hierarchical window attention**, focusing on a set of
-key sampling features within cross-scale windows to condense multi-level feature
-maps. ![The Hierarchical Window Attention](doc/HiWin.png)
+(ii) **hierarchical window attention**, which leverages cross-scale windows to condense multi-level semantics from the ISP. ![The Hierarchical Window Attention](doc/HiWin.png)
 
 ## Environment Preparing
 1. To reproduce the results of the paper, please set up the Python environment using the following code:
@@ -56,7 +52,7 @@ If something wrong happens, please kindly refer to the issues of [LLaVA](https:/
 or submit issues in our repository.
 
 ## Data Preparing
-1. **JBU module pre-training Data**:
+1. **Visual detail injection module pre-training Data**:
 Download [MS-COCO stuff 2017](https://github.com/nightrome/cocostuff).
 2. **Pretraining Data**: Download the 558K subset of the LAION-CC-SBU dataset with BLIP captions we use in the paper [here](https://huggingface.co/datasets/liuhaotian/LLaVA-Pretrain).
 And put the data into ```./playground/data```. 
@@ -65,10 +61,10 @@ And put the data into ```./playground/data```.
 We organize the data like the official code of [LLaVA](https://github.com/haotian-liu/LLaVA). If necessary, you can refer to it.
 
 ## Training Script
-1. **JBU module pre-training**:
-Please use jbu-pretrain.sh, and all hyper parameters are in ```./featup/configs/jbu_upsampler.yaml```. You can directly use our pretrained [JBU module](https://huggingface.co/YipengZhang/LLaVA-UHD-v2/clip-large-jbu.ckpt) of CLIP-ViT-L/14-336.
+1. **Visual detail injection module pre-training**:
+Please use vdim-pretrain.sh, and all hyper parameters are in ```./vdim/configs/vdim_upsampler.yaml```. You can directly use our pretrained [VDIM module](https://huggingface.co/YipengZhang/LLaVA-UHD-v2/clip-large-vdim.ckpt) of CLIP-ViT-L/14-336.
 ```bash
-sh jbu-pretrain.sh
+sh vdim-pretrain.sh
 ```
 2. **model training**:
 Please refer to train.sh for pretraining script and fine-tuning script (we comment in the file). 
