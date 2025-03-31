@@ -72,7 +72,7 @@ class ModelArguments:
     mm_patch_merge_type: Optional[str] = field(default='flat')
     mm_vision_select_feature: Optional[str] = field(default="patch")
     feature_mode: Optional[str] = field(default="uhd_v1") # uhd_v1, featup_muti_res
-    jbu_ckpt: Optional[str] = field(default="Path of JBU ckpt")
+    vdim_ckpt: Optional[str] = field(default="Path of VDIM ckpt")
     feature_scale_mask: Optional[int] = field(default=7) #Binary Mask Representation of Feature Scale Combination 1, (11)2, (111)2, (1111)2 means {1}, {1,2,3}, {1,2,3,4}, {1,2,3,4}
     sft_encoder: bool = field(default=False)
 
@@ -975,7 +975,7 @@ def train(attn_implementation=None):
     if model_args.vision_tower is not None:
         model.config.feature_mode = model_args.feature_mode
         model.config.feature_scale_mask = model_args.feature_scale_mask
-        model.config.jbu_ckpt = model_args.jbu_ckpt
+        model.config.vdim_ckpt = model_args.vdim_ckpt
         
         model.get_model().initialize_vision_modules(
             model_args=model_args,
@@ -983,7 +983,7 @@ def train(attn_implementation=None):
         )
 
         if model_args.feature_mode == 'featup_muti_res':
-            state_dict = get_clipLarge_state_dict(model_args.jbu_ckpt)
+            state_dict = get_clipLarge_state_dict(model_args.vdim_ckpt)
             model.get_model().mm_projector.upsampler.load_state_dict(state_dict, strict=False)
             model.get_model().mm_projector.upsampler.to(training_args.device)
 
