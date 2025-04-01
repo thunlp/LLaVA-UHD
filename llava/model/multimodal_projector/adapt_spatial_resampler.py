@@ -23,7 +23,7 @@ from llava.slice_process import slice_image_feature_minicpm
 import torchvision.ops.roi_align as RoIAlign
 from einops import rearrange
 import time
-from llava.model.multimodal_encoder.hubconf import clipLarge
+from llava.model.multimodal_encoder.hubconf import featup
 
 def get_abs_pos(abs_pos, tgt_size):
     # abs_pos: L, C
@@ -115,8 +115,14 @@ class AdaptSpatialResampler(nn.Module):
         self.num_queries = grid_size ** 2
         self.embed_dim = embed_dim
         self.num_heads = num_heads
-        self.feature_mode =  getattr(self.config, 'feature_mode', 'uhd_v1')
+        self.mm_hidden_size = self.config.mm_hidden_size
         self.feature_scale_mask =  getattr(self.config, 'feature_scale_mask', 7)
+        vision_tower =  getattr(self.config, 'mm_vision_tower', '')
+        self.vision_tower_name = 'clip-large'
+        if 'clip' in vision_tower:
+            self.vision_tower_name = 'clip-large'
+        elif 'siglip' in vision_tower:
+            self.vision_tower_name = 'siglip'
 
         self.pos_embed = nn.Parameter(
             torch.from_numpy(get_2d_sincos_pos_embed(embed_dim, grid_size)).float()
@@ -130,37 +136,36 @@ class AdaptSpatialResampler(nn.Module):
         else:
             self.kv_proj = nn.Identity()
         
-        if self.feature_mode == 'featup_muti_res':
-            if self.feature_scale_mask & 8:
-                self.upsampler = clipLarge(pretrained=False, use_norm=True, scale='8x')
-            elif self.feature_scale_mask & 4:
-                self.upsampler = clipLarge(pretrained=False, use_norm=True, scale='4x')
-            elif self.feature_scale_mask & 2:
-                self.upsampler = clipLarge(pretrained=False, use_norm=True, scale='2x')
+        if self.feature_scale_mask & 8:
+            self.upsampler = featup(self.vision_tower_name, pretrained=False, use_norm=True, scale='8x')
+        elif self.feature_scale_mask & 4:
+            self.upsampler = featup(self.vision_tower_name, pretrained=False, use_norm=True, scale='4x')
+        elif self.feature_scale_mask & 2:
+            self.upsampler = featup(self.vision_tower_name, pretrained=False, use_norm=True, scale='2x')
 
-            # four learnable expert embeddings
-            self.feature_1x_embedding = nn.Parameter(torch.zeros(1,1, self.embed_dim))
-            self.feature_2x_embedding = nn.Parameter(torch.zeros(1,1, self.embed_dim))
-            self.feature_4x_embedding = nn.Parameter(torch.zeros(1,1, self.embed_dim))
-            self.feature_8x_embedding = nn.Parameter(torch.zeros(1,1, self.embed_dim))
+        # four learnable expert embeddings
+        self.feature_1x_embedding = nn.Parameter(torch.zeros(1,1, self.embed_dim))
+        self.feature_2x_embedding = nn.Parameter(torch.zeros(1,1, self.embed_dim))
+        self.feature_4x_embedding = nn.Parameter(torch.zeros(1,1, self.embed_dim))
+        self.feature_8x_embedding = nn.Parameter(torch.zeros(1,1, self.embed_dim))
 
-            # It is a 144 diverse embedding, not 
-            self.query_1 = nn.Parameter(torch.zeros(self.num_queries, embed_dim))
-            trunc_normal_(self.query_1, std=.02)
+        # It is a 144 diverse embedding, not 
+        self.query_1 = nn.Parameter(torch.zeros(self.num_queries, embed_dim))
+        trunc_normal_(self.query_1, std=.02)
             
-            self.query_2 = nn.Parameter(torch.zeros(self.num_queries, embed_dim))
-            trunc_normal_(self.query_2, std=.02)
+        self.query_2 = nn.Parameter(torch.zeros(self.num_queries, embed_dim))
+        trunc_normal_(self.query_2, std=.02)
             
-            self.query_3 = nn.Parameter(torch.zeros(self.num_queries, embed_dim))
-            trunc_normal_(self.query_3, std=.02)
+        self.query_3 = nn.Parameter(torch.zeros(self.num_queries, embed_dim))
+        trunc_normal_(self.query_3, std=.02)
             
-            self.query_4 = nn.Parameter(torch.zeros(self.num_queries, embed_dim))
-            trunc_normal_(self.query_4, std=.02)
+        self.query_4 = nn.Parameter(torch.zeros(self.num_queries, embed_dim))
+        trunc_normal_(self.query_4, std=.02)
 
-            self.features_1x_projector = nn.Linear(in_features=1024, out_features=self.embed_dim)
-            self.features_2x_projector = nn.Linear(in_features=1024, out_features=self.embed_dim)
-            self.features_4x_projector = nn.Linear(in_features=1024, out_features=self.embed_dim)
-            self.features_8x_projector = nn.Linear(in_features=1024, out_features=self.embed_dim)
+        self.features_1x_projector = nn.Linear(in_features=self.mm_hidden_size, out_features=self.embed_dim)
+        self.features_2x_projector = nn.Linear(in_features=self.mm_hidden_size, out_features=self.embed_dim)
+        self.features_4x_projector = nn.Linear(in_features=self.mm_hidden_size, out_features=self.embed_dim)
+        self.features_8x_projector = nn.Linear(in_features=self.mm_hidden_size, out_features=self.embed_dim)
                     
         self.attn = nn.MultiheadAttention(embed_dim, num_heads)
         self.ln_q = norm_layer(embed_dim)
@@ -201,10 +206,7 @@ class AdaptSpatialResampler(nn.Module):
         # input_embeds: bs, n, c
         # spatial_size: feature map height, width
         # sampler_bins越大，采样点越多，细节越多
-        if self.feature_mode == 'featup_muti_res':
-            input_embeds = input_embeds.permute(0, 3,1,2)
-        else:
-            input_embeds = input_embeds.permute(0, 2, 1).unflatten(-1, spatial_size)
+        input_embeds = input_embeds.permute(0, 3,1,2)
 
         resample_regions, best_grid, wh_ratio = slice_image_feature_minicpm(input_embeds, self.num_queries)
 
@@ -450,9 +452,14 @@ class AdaptSpatialResampler(nn.Module):
         bs = len(images)
 
         features_1x = [] #list torch.Size([1, 1024, 25, 22])
+
         for i in range(len(features)):
             h, w = patch_sizes[i]
-            feature = features[i][:h * w, :].unsqueeze(0)
+
+            if type(features) is list:
+                feature = features[i][:h * w, :]
+            else:
+                feature = features[i][:h * w, :].unsqueeze(0)
             feature = feature.permute(0, 2, 1)  #torch.Size([1, 1024, 25*22])
             feature = feature.unflatten(2, [h, w])  #torch.Size([1, 1024, 25, 22])
             features_1x.append(feature)

@@ -179,7 +179,7 @@ def _get_state_dict(ckpt_path):
 #     return _load_backbone(pretrained, use_norm, "vit")
 
 def vit(pretrained=True, use_norm=True):
-    ckpt_path = 'Path to JBU ckpt'
+    ckpt_path = '/home/jeeves/LowResCV/checkpoints/jbu/final_1e6_token_unnorm_pad30_jitter5_lr4_vit_jbu_stack_cocostuff_attention_crf_0.001_tv_0.0_ent_0.0/home/jeeves/LowResCV/checkpoints/jbu/final_1e6_token_unnorm_pad30_jitter5_lr4_vit_jbu_stack_cocostuff_attention_crf_0.001_tv_0.0_ent_0.0_685.ckpt'
     return _load_backbone_from_local(pretrained, use_norm, "vit", ckpt_path)
 
 def dino16(pretrained=True, use_norm=True):
@@ -190,10 +190,15 @@ def clip(pretrained=True, use_norm=True):
     return _load_backbone(pretrained, use_norm, "clip")
 
 def clipLarge(pretrained=True, use_norm=True, scale = '4x'):
-    ckpt_path = 'Path to JBU ckpt'
+    ckpt_path = '/mnt/data/user/tc_agi/zyp/featup/upsampler/0919/checkpoints/clip-large_jbu_4x_stack_cocostuff_attention_crf_0.001_tv_0.0_ent_0.0-0.001-True-30-2-5_2000.ckpt'
     return _load_backbone_from_local(pretrained, use_norm, "clip-large", ckpt_path, scale)
 
-def get_clipLarge_state_dict(ckpt_path='Path to JBU ckpt'):
+
+def featup(model_name='clip-large', pretrained=False, use_norm=False, scale = '4x'):
+    ckpt_path = '/mnt/data/user/tc_agi/zyp/featup/upsampler/0919/checkpoints/clip-large_jbu_4x_stack_cocostuff_attention_crf_0.001_tv_0.0_ent_0.0-0.001-True-30-2-5_2000.ckpt'
+    return _load_backbone_from_local(pretrained, use_norm, model_name, ckpt_path, scale)
+
+def get_featup_state_dict(ckpt_path='/mnt/data/user/tc_agi/zyp/featup/upsampler/0919/checkpoints/clip-large_jbu_4x_stack_cocostuff_attention_crf_0.001_tv_0.0_ent_0.0-0.001-True-30-2-5_2000.ckpt'):
     return _get_state_dict(ckpt_path)
 
 def dinov2(pretrained=True, use_norm=True):

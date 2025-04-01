@@ -19,8 +19,7 @@ import torch
 import torch.nn as nn
 from torch.nn import CrossEntropyLoss
 
-from transformers import AutoConfig, AutoModelForCausalLM, \
-                         MistralConfig, MistralModel, MistralForCausalLM
+from transformers import AutoConfig, AutoModelForCausalLM, MistralConfig, MistralModel, MistralForCausalLM, GenerationConfig
 
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from transformers.generation.utils import GenerateOutput
@@ -30,6 +29,10 @@ from ..llava_arch import LlavaMetaModel, LlavaMetaForCausalLM
 
 class LlavaMistralConfig(MistralConfig):
     model_type = "llava_mistral"
+    temperature: float = 0.0  # reset to 0.0, previously 0.9 for Vicuna
+    max_new_tokens: int = 1024
+    do_sample: bool = False
+    top_p: Optional[float] = None
 
 
 class LlavaMistralModel(LlavaMetaModel, MistralModel):
@@ -44,10 +47,12 @@ class LlavaMistralForCausalLM(MistralForCausalLM, LlavaMetaForCausalLM):
 
     def __init__(self, config):
         super(MistralForCausalLM, self).__init__(config)
+
+        config.model_type = "llava_mistral"
+        config.rope_scaling = None
+
         self.model = LlavaMistralModel(config)
-
         self.lm_head = nn.Linear(config.hidden_size, config.vocab_size, bias=False)
-
         # Initialize weights and apply final processing
         self.post_init()
 
@@ -68,25 +73,11 @@ class LlavaMistralForCausalLM(MistralForCausalLM, LlavaMetaForCausalLM):
         images: Optional[torch.FloatTensor] = None,
         image_sizes: Optional[List[List[int]]] = None,
         return_dict: Optional[bool] = None,
+        cache_position=None,
     ) -> Union[Tuple, CausalLMOutputWithPast]:
 
         if inputs_embeds is None:
-            (
-                input_ids,
-                position_ids,
-                attention_mask,
-                past_key_values,
-                inputs_embeds,
-                labels
-            ) = self.prepare_inputs_labels_for_multimodal(
-                input_ids,
-                position_ids,
-                attention_mask,
-                past_key_values,
-                labels,
-                images,
-                image_sizes
-            )
+            (input_ids, position_ids, attention_mask, past_key_values, inputs_embeds, labels) = self.prepare_inputs_labels_for_multimodal(input_ids, position_ids, attention_mask, past_key_values, labels, images, image_sizes)
 
         return super().forward(
             input_ids=input_ids,
@@ -98,7 +89,7 @@ class LlavaMistralForCausalLM(MistralForCausalLM, LlavaMetaForCausalLM):
             use_cache=use_cache,
             output_attentions=output_attentions,
             output_hidden_states=output_hidden_states,
-            return_dict=return_dict
+            return_dict=return_dict,
         )
 
     @torch.no_grad()
@@ -115,44 +106,22 @@ class LlavaMistralForCausalLM(MistralForCausalLM, LlavaMetaForCausalLM):
             raise NotImplementedError("`inputs_embeds` is not supported")
 
         if images is not None:
-            (
-                inputs,
-                position_ids,
-                attention_mask,
-                _,
-                inputs_embeds,
-                _
-            ) = self.prepare_inputs_labels_for_multimodal(
-                inputs,
-                position_ids,
-                attention_mask,
-                None,
-                None,
-                images,
-                image_sizes=image_sizes
-            )
+            (inputs, position_ids, attention_mask, _, inputs_embeds, _) = self.prepare_inputs_labels_for_multimodal(inputs, position_ids, attention_mask, None, None, images, image_sizes=image_sizes)
         else:
             inputs_embeds = self.get_model().embed_tokens(inputs)
 
-        return super().generate(
-            position_ids=position_ids,
-            attention_mask=attention_mask,
-            inputs_embeds=inputs_embeds,
-            **kwargs
-        )
+        return super().generate(position_ids=position_ids, attention_mask=attention_mask, inputs_embeds=inputs_embeds, **kwargs)
 
-    def prepare_inputs_for_generation(self, input_ids, past_key_values=None,
-                                      inputs_embeds=None, **kwargs):
+    def prepare_inputs_for_generation(self, input_ids, past_key_values=None, inputs_embeds=None, **kwargs):
         images = kwargs.pop("images", None)
         image_sizes = kwargs.pop("image_sizes", None)
-        inputs = super().prepare_inputs_for_generation(
-            input_ids, past_key_values=past_key_values, inputs_embeds=inputs_embeds, **kwargs
-        )
+        inputs = super().prepare_inputs_for_generation(input_ids, past_key_values=past_key_values, inputs_embeds=inputs_embeds, **kwargs)
         if images is not None:
-            inputs['images'] = images
+            inputs["images"] = images
         if image_sizes is not None:
-            inputs['image_sizes'] = image_sizes
+            inputs["image_sizes"] = image_sizes
         return inputs
+
 
 AutoConfig.register("llava_mistral", LlavaMistralConfig)
 AutoModelForCausalLM.register(LlavaMistralConfig, LlavaMistralForCausalLM)

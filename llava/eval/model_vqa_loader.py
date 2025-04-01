@@ -9,9 +9,13 @@ from llava.constants import IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_S
 from llava.conversation import conv_templates, SeparatorStyle
 from llava.model.builder import load_pretrained_model
 from llava.utils import disable_torch_init
-from llava.mm_utils import tokenizer_image_token, process_images, get_model_name_from_path, expand2square
-from torch.utils.data import Dataset, DataLoader
+from llava.mm_utils import tokenizer_image_token, process_images, get_model_name_from_path, expand2square, KeywordsStoppingCriteria
+from llava.constants import IGNORE_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN, IMAGE_TOKEN_INDEX
 
+from torch.utils.data import Dataset, DataLoader
+from typing import Dict, Optional, Sequence, List
+import transformers
+import re
 from PIL import Image
 import math
 from llava.slice_process import slice_image_minicpm, split_image, resize_image_keep_ratio
@@ -27,6 +31,58 @@ def get_chunk(lst, n, k):
     chunks = split_list(lst, n)
     return chunks[k]
 
+def preprocess_qwen(sources, tokenizer: transformers.PreTrainedTokenizer, has_image: bool = False, max_len=2048, system_message: str = "You are a helpful assistant.") -> Dict:
+    roles = {"human": "<|im_start|>user", "gpt": "<|im_start|>assistant"}
+
+    im_start, im_end = tokenizer.additional_special_tokens_ids
+    nl_tokens = tokenizer("\n").input_ids
+    _system = tokenizer("system").input_ids + nl_tokens
+    _user = tokenizer("user").input_ids + nl_tokens
+    _assistant = tokenizer("assistant").input_ids + nl_tokens
+
+    # Apply prompt templates
+    input_ids, targets = [], []
+
+    source = sources
+    if roles[source[0]["from"]] != roles["human"]:
+        source = source[1:]
+
+    input_id, target = [], []
+    system = [im_start] + _system + tokenizer(system_message).input_ids + [im_end] + nl_tokens
+    input_id += system
+    target += [im_start] + [IGNORE_INDEX] * (len(system) - 3) + [im_end] + nl_tokens
+    assert len(input_id) == len(target)
+    for j, sentence in enumerate(source):
+        role = roles[sentence["from"]]
+        if has_image and sentence["value"] is not None and "<image>" in sentence["value"]:
+            num_image = len(re.findall(DEFAULT_IMAGE_TOKEN, sentence["value"]))
+            texts = sentence["value"].split('<image>')
+            _input_id = tokenizer(role).input_ids + nl_tokens 
+            for i,text in enumerate(texts):
+                _input_id += tokenizer(text).input_ids 
+                if i<len(texts)-1:
+                    _input_id += [IMAGE_TOKEN_INDEX] + nl_tokens
+            _input_id += [im_end] + nl_tokens
+            assert sum([i==IMAGE_TOKEN_INDEX for i in _input_id])==num_image
+        else:
+            if sentence["value"] is None:
+                _input_id = tokenizer(role).input_ids + nl_tokens
+            else:
+                _input_id = tokenizer(role).input_ids + nl_tokens + tokenizer(sentence["value"]).input_ids + [im_end] + nl_tokens
+        input_id += _input_id
+        if role == "<|im_start|>user":
+            _target = [im_start] + [IGNORE_INDEX] * (len(_input_id) - 3) + [im_end] + nl_tokens
+        elif role == "<|im_start|>assistant":
+            _target = [im_start] + [IGNORE_INDEX] * len(tokenizer(role).input_ids) + _input_id[len(tokenizer(role).input_ids) + 1 : -2] + [im_end] + nl_tokens
+        else:
+            raise NotImplementedError
+        target += _target
+
+    input_ids.append(input_id)
+    targets.append(target)
+    input_ids = torch.tensor(input_ids, dtype=torch.long)
+    targets = torch.tensor(targets, dtype=torch.long)
+    return input_ids
 
 # Custom dataset class
 class CustomDataset(Dataset):
@@ -51,17 +107,29 @@ class CustomDataset(Dataset):
         conv.append_message(conv.roles[0], qs)
         conv.append_message(conv.roles[1], None)
         prompt = conv.get_prompt()
-        image = Image.open(os.path.join(self.image_folder, image_file)).convert('RGB')
 
-        if ('mme' in self.image_folder) or ('ai2d' in self.image_folder):
-            image = image
-        elif 'textvqa' in self.image_folder:
-            image = resize_image_keep_ratio(image, max_size=1536)
-        else:
-            image = resize_image_keep_ratio(image, max_size=1024)
+        image = Image.open(os.path.join(self.image_folder, image_file)).convert('RGB')
+        # image_tensor = process_images([image], self.image_processor, self.model_config)[0]
+
+        # 2x2切片
+        # image = expand2square(image, tuple(int(x*255) for x in processor.image_mean))
+        # sub_images = split_image(image, scale=672, grid=(2, 2))
+        # sub_images.append(image)
+        # image = sub_images
+        # image = processor.preprocess(image, return_tensors='pt')['pixel_values'] # bs, 3, h, w
+        # image_tensor = image.flatten(0, 1)
+
+        # adapt
+        # image, _, _, _ = slice_image_minicpm(
+        #     image, max_slice_nums=7, scale_resolution=336, patch_size=14, never_split=False)
+        # image = processor.preprocess(image, do_resize=False, do_center_crop=False, 
+        #                             do_rescale=True, do_normalize=True, return_tensors='pt')['pixel_values'][0]
+        # image_tensor = image
+
+        image = resize_image_keep_ratio(image, max_size=1024)
 
         source_image, patches, best_grid, ind_tokens = slice_image_minicpm(
-            image, max_slice_nums=9, scale_resolution=336, patch_size=14, never_split=False)
+            image, max_slice_nums=7, scale_resolution=336, patch_size=14, never_split=False)
 
         if best_grid is None: #说明没有切片
             source_tensors = processor.preprocess(source_image, do_resize=False, do_center_crop=False, 
@@ -130,6 +198,14 @@ def eval_model(args):
         image_tensor = [image_tensor[0].to(dtype=torch.float16, device='cuda', non_blocking=True)]
         patch_images = [item.to(dtype=torch.float16, device='cuda', non_blocking=True) for item in patch_images]
         
+        args.conv_mode = "qwen_1_5"
+
+        conv = conv_templates[args.conv_mode].copy()
+        stop_str = conv.sep if conv.sep_style != SeparatorStyle.TWO else conv.sep2
+        keywords = [stop_str]
+        stopping_criteria = KeywordsStoppingCriteria(keywords, tokenizer, input_ids)
+
+
         with torch.inference_mode():
             output_ids = model.generate(
                 input_ids,
@@ -144,7 +220,11 @@ def eval_model(args):
                 max_new_tokens=args.max_new_tokens,
                 use_cache=True)
 
-        outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()
+        outputs = tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0]
+        outputs = outputs.strip()
+        if outputs.endswith(stop_str):
+            outputs = outputs[:-len(stop_str)]
+        outputs = outputs.strip()
 
         ans_id = shortuuid.uuid()
         ans_file.write(json.dumps({"question_id": idx,

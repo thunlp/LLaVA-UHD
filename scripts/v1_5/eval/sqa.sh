@@ -21,7 +21,7 @@ for IDX in $(seq 0 $((CHUNKS-1))); do
         --num_beams 3 \
         --num-chunks $CHUNKS \
         --chunk-idx $IDX \
-        --conv-mode vicuna_v1 &
+        --conv-mode qwen_1_5 &
 done
 
 wait

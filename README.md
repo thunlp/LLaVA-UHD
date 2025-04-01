@@ -36,7 +36,6 @@ LLaVA-UHD v2 includes two key components:
 (i) **Visual detail injection module**, which progressively injects low-level visual details into high-level language-aligned semantics features, thereby forming an inverse semantic pyramid (ISP),
 and
 ![pyramid](doc/pyramid.png)
-![vdim-visual](doc/jbu-visual.png)
 
 (ii) **hierarchical window attention**, which leverages cross-scale windows to condense multi-level semantics from the ISP. ![The Hierarchical Window Attention](doc/HiWin.png)
 

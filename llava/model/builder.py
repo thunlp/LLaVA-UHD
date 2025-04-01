@@ -21,10 +21,10 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, AutoConfig, BitsAn
 import torch
 from llava.model import *
 from llava.constants import DEFAULT_IMAGE_PATCH_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
-
+from llava.utils import rank0_print
 
 def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, load_4bit=False, 
-                          device_map="auto", device="cuda", use_flash_attn=False, _args=None, **kwargs):
+                          device_map="auto", device="cuda", use_flash_attn=False, _args=None, overwrite_config=None, **kwargs):
     kwargs = {"device_map": device_map, **kwargs}
 
     if device != "cuda":
@@ -113,6 +113,32 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                     low_cpu_mem_usage=True,
                     **kwargs
                 )
+            elif "qwen" in model_name.lower() or "quyen" in model_name.lower():
+                attn_implementation="flash_attention_2"
+                tokenizer = AutoTokenizer.from_pretrained(model_path)
+                if "moe" in model_name.lower() or "A14B" in model_name.lower():
+                    from llava.model.language_model.llava_qwen_moe import LlavaQwenMoeConfig
+                    if overwrite_config is not None:
+                        llava_cfg = LlavaQwenMoeConfig.from_pretrained(model_path)
+                        rank0_print(f"Overwriting config with {overwrite_config}")
+                        for k, v in overwrite_config.items():
+                            setattr(llava_cfg, k, v)
+                        model = LlavaQwenMoeForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=True, attn_implementation=attn_implementation, config=llava_cfg, **kwargs)
+                    else:
+                        model = LlavaQwenMoeForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=True, attn_implementation=attn_implementation, **kwargs)
+
+                else:
+                    from llava.model.language_model.llava_qwen import LlavaQwenConfig
+                    if overwrite_config is not None:
+                        llava_cfg = LlavaQwenConfig.from_pretrained(model_path)
+                        rank0_print(f"Overwriting config with {overwrite_config}")
+                        for k, v in overwrite_config.items():
+                            setattr(llava_cfg, k, v)
+                        model = LlavaQwenForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=True, config=llava_cfg, **kwargs)
+                    else:
+                        model = LlavaQwenForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=True, **kwargs)
+
+                model.to(torch.bfloat16)
             else:
                 tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
                 model = LlavaLlamaForCausalLM.from_pretrained(
@@ -120,7 +146,7 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                     low_cpu_mem_usage=True,
                     **kwargs
                 )
-                model.to(torch.bfloat16)  #for jbu
+                model.to(torch.bfloat16)
     else:
         # Load language model
         if model_base is not None:
@@ -166,6 +192,10 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
 
     if hasattr(model.config, "max_sequence_length"):
         context_len = model.config.max_sequence_length
+    elif hasattr(model.config, "max_position_embeddings"):
+        context_len = model.config.max_position_embeddings
+    elif hasattr(model.config, "tokenizer_model_max_length"):
+        context_len = model.config.tokenizer_model_max_length
     else:
         context_len = 2048
 

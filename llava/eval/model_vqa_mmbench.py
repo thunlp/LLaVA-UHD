@@ -111,7 +111,7 @@ def eval_model(args):
             # image = resize_image_keep_ratio(image, max_size=1024)
             # minicpm-v
             source_image, patches, best_grid, ind_tokens = slice_image_minicpm(
-                image, max_slice_nums=9, scale_resolution=336, patch_size=14, never_split=False)
+                image, max_slice_nums=7, scale_resolution=336, patch_size=14, never_split=False)
             image_sizes = [source_image.size]
             processor = image_processor
             if best_grid is None: #说明没有切片
