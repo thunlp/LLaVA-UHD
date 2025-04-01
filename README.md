@@ -6,7 +6,7 @@
 </div>
 
 ## News
--[2025/04/01] 🔥We released new checkpoints of LLaVA-UHD v2 based on [Qwen2.0-7B-instruct](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B) and [Vicuna-13B](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Vicuna-13B), and the training code can be found in branch `LLaVA-UHD-v2-onevision`.
+-[2025/04/01] 🔥We released new checkpoints of LLaVA-UHD v2 based on [Qwen2.0-7B-instruct](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B) and [Vicuna-13B](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Vicuna-13B).
 
 -[2024/12/19] 🔥LLaVA-UHD v2 achieves achieves superior
 performance over existing MLLMs on 15 popular benchmarks. 
