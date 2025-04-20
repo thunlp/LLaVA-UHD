@@ -8,7 +8,7 @@
 ## News
 -[2025/04/01] 🔥We released new checkpoints of LLaVA-UHD v2 based on [Qwen2.0-7B-instruct](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B) and [Vicuna-13B](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Vicuna-13B).
 
--[2024/12/19] 🔥LLaVA-UHD v2 achieves achieves superior
+-[2024/12/19] 🔥LLaVA-UHD v2 achieves superior
 performance over existing MLLMs on 15 popular benchmarks. 
 Notably, our design
 brings an average boost of 3.7% across 14 benchmarks compared with the baseline
