@@ -3,6 +3,22 @@
 # LLaVA-UHD v2
 
 **LLaVA-UHD v2: an MLLM Integrating High-Resolution Semantic Pyramid via Hierarchical Window Transformer**
+
+
+<a target="_blank" href="https://arxiv.org/abs/2412.13871">
+<img style="height:22pt" src="https://img.shields.io/badge/-Paper-red?style=flat&logo=arxiv"></a>
+
+<!-- <a target="_blank" href="https://github.com/thunlp/LLaVA-UHD"> 
+<img style="height:22pt" src="https://img.shields.io/badge/-Code-green?style=flat&logo=github"></a> -->
+
+<a target="_blank" href="https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B">
+<img style="height:22pt" src="https://img.shields.io/badge/-🤗%20Models-green?style=flat"></a>
+
+<a target="_blank" href="https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data">  
+<img style="height:22pt" src="https://img.shields.io/badge/-🤗%20Dataset-blue?style=flat"></a>
+
+<br>
+
 </div>
 
 ## News
