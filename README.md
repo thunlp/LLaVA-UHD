@@ -2,7 +2,7 @@
   
 # LLaVA-UHD v2
 
-**LLaVA-UHD v2: an MLLM Integrating High-Resolution Semantic Pyramid via Hierarchical Window Transformer**
+**LLaVA-UHD v2: an MLLM Integrating High-Resolution Semantic Pyramid via Hierarchical Window Transformer(AAAI-26)**
 
 
 <a target="_blank" href="https://arxiv.org/abs/2412.13871">
