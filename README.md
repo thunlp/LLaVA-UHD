@@ -22,6 +22,8 @@
 </div>
 
 ## News
+-[2025/11/08] 📢🔥 LLaVA-UHD v2 is accepted by ECCV2024.
+
 -[2025/04/01] 🔥We released new checkpoints of LLaVA-UHD v2 based on [Qwen2.0-7B-instruct](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B) and [Vicuna-13B](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Vicuna-13B).
 
 -[2024/12/19] 🔥LLaVA-UHD v2 achieves superior
