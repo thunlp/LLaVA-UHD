@@ -29,7 +29,7 @@ method(LLaVA-UHD), 9.3% on DocVQA for instance.
 
 -[2024/07/29] **LLaVA-UHD** achieves performance improvement on 8 common benchmarks beyong LLaVA-1.5. 
 Our novel projector, **spatially constrained resampler**, realizes high feature compression and convergence efficiency. 
-Model checkpoints are available in [hugging-face](https://huggingface.co/guozonghao96/llava-uhd-144-13b).
+Model checkpoints are available in [huggingface](https://huggingface.co/guozonghao96/llava-uhd-144-13b).
 You can find the original project instruction and code of **LLaVA-UHD** in branch `LLaVA-UHD-v1`
 
 -[2024/07/01] 📢[LLaVA-UHD](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11080.pdf) is accepted by ECCV2024.
