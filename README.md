@@ -14,20 +14,20 @@
 This repository hosts the code, data of **LLaVA-UHD-v3**, a multimodal large language model (MLLM) built upon our proposed Progressive Visual Compression (PVC) for efficient naive-resolution encoding. Our model not only achieves performance comparable to advanced MLLMs like Qwen2-VL across 15 diverse benchmarks but also delivers a 1.9x reduction in Time-to-First-Token (TTFT). Moreover, LLaVA-UHD v3 can be trained efficiently in academic settings, requiring approximately 300 hours on 32 A100 GPUs. For more details, please visit our 📃 [paper](https://arxiv.org/abs/2403.11703) here
 
 ## News
--[2025/11/05] 🧠The Pilot experiment related code and benchmark mentioned in the paper are available on [huggingface](https://huggingface.co/datasets/ZzzHelloWorld/LLaVA-UHD-v3_Pilot_experiment).The checkpoints for global naive-resolution visual encoding GNE and slice-based encoding SBE have also been released.
+-[2025/11/05] 🧠The Pilot experiment related code of LLaVA-UHD-v3 and benchmark mentioned in the paper are available on [huggingface](https://huggingface.co/datasets/ZzzHelloWorld/LLaVA-UHD-v3_Pilot_experiment).The checkpoints for global naive-resolution visual encoding GNE and slice-based encoding SBE have also been released.
 
--[2025/11/05] 🔥LLaVA-UHD v3 achieves a superior trade-off between efficiency and performance across 15 diverse benchmarks. Our novel vision encoder, ViT-UHD with Progressive Visual Compression (PVC), enables efficient naive-resolution encoding, significantly reducing latency while maintaining competitive performance. Model checkpoints are available in [huggingface](https://huggingface.co/Sishxo/LLaVA-UHD-v3).
+-[2025/11/05] 🔥**LLaVA-UHD v3** achieves a superior trade-off between efficiency and performance across 15 diverse benchmarks. Our novel vision encoder, ViT-UHD with Progressive Visual Compression (PVC), enables efficient naive-resolution encoding, significantly reducing latency while maintaining competitive performance. Model checkpoints are available in [huggingface](https://huggingface.co/Sishxo/LLaVA-UHD-v3).
 
 -[2025/04/01] 🔥We released new checkpoints of LLaVA-UHD v2 based on [Qwen2.0-7B-instruct](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B) and [Vicuna-13B](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Vicuna-13B).
 
--[2024/12/19] 🔥LLaVA-UHD v2 achieves superior
+-[2024/12/19] 🔥**LLaVA-UHD v2** achieves superior
 performance over existing MLLMs on 15 popular benchmarks. 
 Notably, our design
 brings an average boost of 3.7% across 14 benchmarks compared with the baseline
 method(LLaVA-UHD), 9.3% on DocVQA for instance.
  [Model checkpoints](https://huggingface.co/YipengZhang/LLaVA-UHD-v2) and [LLaVA-UHD-v2-SFT-Data](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data) are available in huggingface.
 
--[2024/07/29] LLaVA-UHD achieves performance improvement on 8 common benchmarks beyong LLaVA-1.5. 
+-[2024/07/29] **LLaVA-UHD** achieves performance improvement on 8 common benchmarks beyong LLaVA-1.5. 
 Our novel projector, **spatially constrained resampler**, realizes high feature compression and convergence efficiency. 
 Model checkpoints are available in [hugging-face](https://huggingface.co/guozonghao96/llava-uhd-144-13b).
 You can find the original project instruction and code of **LLaVA-UHD** in branch `LLaVA-UHD-v1`
