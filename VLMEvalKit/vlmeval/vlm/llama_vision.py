@@ -15,27 +15,30 @@ class llama_vision(BaseModel):
     def __init__(self, model_path='meta-llama/Llama-3.2-11B-Vision-Instruct', **kwargs):
         try:
             from transformers import MllamaForConditionalGeneration, AutoProcessor
-        except:
-            warnings.warn('Please install transformers>=4.45.0 before using llama_vision.')
-            sys.exit(-1)
+        except Exception as e:
+            logging.critical('Please install transformers>=4.45.0 before using llama_vision.')
+            raise e
 
         self.model = MllamaForConditionalGeneration.from_pretrained(
             model_path,
             torch_dtype=torch.bfloat16,
-            device_map='auto',
+            device_map="auto",
         ).eval()
+
+        self.device = 'cuda'
         self.processor = AutoProcessor.from_pretrained(model_path)
-        if 'Instruct' in model_path:
+        if 'Instruct' in model_path or 'cot' in model_path or 'CoT' in model_path:
             kwargs_default = dict(do_sample=True, temperature=0.6, top_p=0.9)
         else:
-            kwargs_default = dict(do_sample=False, max_new_tokens=512, temperature=0.0, top_p=None, num_beams=1)
+            kwargs_default = dict(do_sample=False, max_new_tokens=2048, temperature=0.0, top_p=None, num_beams=1)
         kwargs.update(kwargs_default)
         print(f'Following kwargs received: {kwargs}, will use as generation config. ')
         self.kwargs = kwargs
         self.model_name = model_path
 
     def use_custom_prompt(self, dataset):
-        assert dataset is not None
+        if dataset is None:
+            return False
         if listinstr(['AI2D', 'MMMU', 'MathVista', 'ChartQA', 'DocVQA'], dataset):
             # For Certain dataset we use custom prompt
             return True
@@ -76,7 +79,7 @@ class llama_vision(BaseModel):
                 f'Question: {question} Options: {options} Indicate the correct answer at the end.'
             )
             for i in range(len(tgt_path)):
-                prompt = prompt.replace(f'<image {i+1}>', '')
+                prompt = prompt.replace(f'<image {i + 1}>', '')
         elif listinstr(['MathVista'], dataset):
             self.kwargs['max_new_tokens'] = 2048
             prompt = f'{question}'
@@ -139,11 +142,13 @@ class llama_vision(BaseModel):
             ]}
         ]
         input_text = self.processor.apply_chat_template(messages, add_generation_prompt=True)
-        inputs = self.processor(image, input_text, return_tensors='pt').to(self.model.device)
+        inputs = self.processor(image, input_text, return_tensors='pt').to(self.device)
         if not self.use_custom_prompt(dataset):
-            if DATASET_TYPE(dataset) == 'MCQ' or DATASET_TYPE(dataset) == 'Y/N':
+            if dataset is not None and DATASET_TYPE(dataset) in ['MCQ', 'Y/N']:
                 self.kwargs['max_new_tokens'] = 128
             else:
                 self.kwargs['max_new_tokens'] = 512
+        if "cot" in self.model_name or "CoT" in self.model_name:
+            self.kwargs['max_new_tokens'] = 2048
         output = self.model.generate(**inputs, **self.kwargs)
         return self.processor.decode(output[0][inputs['input_ids'].shape[1]:]).replace('<|eot_id|>', '')

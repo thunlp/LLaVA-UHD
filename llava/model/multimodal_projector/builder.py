@@ -3,12 +3,10 @@ import torch.nn as nn
 import re
 import math
 
-from .pooler_projector import PoolerProjector
-from .adapt_spatial_resampler import AdaptSpatialResampler
 from .uhd_v1_resampler import AdaptSpatialResampler_v1
-from .mlp import MLP
-from .mlp_v2 import MLP_v2
-from .percive_sampler import PerceiverResampler
+from .resampler import Resampler
+from .llava_mlp import LLaVA_MLP
+from .merger import Qwen2vlPatchMerger, Qwen2_5vlInvalid
 
 class IdentityMap(nn.Module):
     def __init__(self):
@@ -36,74 +34,34 @@ class SimpleResBlock(nn.Module):
 
 def build_vision_projector(config, delay_load=False, **kwargs):
     projector_type = getattr(config, "mm_projector_type", "linear")
-
-    if projector_type == "linear":
-        return nn.Linear(config.mm_hidden_size, config.hidden_size)
-
-    if projector_type == "pooler":
-        return PoolerProjector(config, kwargs["vision_cfg"])
-
-    mlp_gelu_match = re.match(r"^mlp(\d+)x_gelu$", projector_type)
-    if mlp_gelu_match:
-        mlp_depth = int(mlp_gelu_match.group(1))
-        modules = [nn.Linear(config.mm_hidden_size, config.hidden_size)]
-        for _ in range(1, mlp_depth):
-            modules.append(nn.GELU())
-            modules.append(nn.Linear(config.hidden_size, config.hidden_size))
-        return nn.Sequential(*modules)
-
-    mlp_gelu_resnet_match = re.match(r"^mlp(\d+)x_res(\d+)x_gelu$", projector_type)
-    if mlp_gelu_resnet_match:
-        mlp_depth = int(mlp_gelu_resnet_match.group(1))
-        res_depth = int(mlp_gelu_resnet_match.group(2))
-        modules = [nn.Linear(config.mm_hidden_size, config.hidden_size)]
-        for _ in range(1, mlp_depth):
-            modules.append(nn.GELU())
-            modules.append(nn.Linear(config.hidden_size, config.hidden_size))
-        for _ in range(res_depth):
-            modules.append(SimpleResBlock(config.hidden_size))
-        return nn.Sequential(*modules)
-    
-    if projector_type == 'adapt_spatial_resampler_v2':
-        target_sequence_length = 144
-        grid_size = int(math.sqrt(target_sequence_length))
-
-        resampler = AdaptSpatialResampler(
+    if projector_type == 'mlp':
+        resampler = LLaVA_MLP(
             config=config,
-            grid_size=grid_size,
             embed_dim = config.hidden_size,
-            num_heads = config.hidden_size // 128,
             kv_dim=config.mm_hidden_size
         )
         return resampler
     
-    if projector_type == 'adapt_spatial_resampler_v2_64':
+    elif projector_type == 'merger':
+        resampler = Qwen2vlPatchMerger(
+            embed_dim = config.hidden_size,
+            image_embed_dim=config.mm_hidden_size,
+            compression_factor=(2, 2),
+        )
+        return resampler
+    
+    elif projector_type == 'resampler':
         target_sequence_length = 64
         grid_size = int(math.sqrt(target_sequence_length))
-
-        resampler = AdaptSpatialResampler(
-            config=config,
+        resampler = Resampler(
             grid_size=grid_size,
             embed_dim = config.hidden_size,
             num_heads = config.hidden_size // 128,
-            kv_dim=config.mm_hidden_size
+            kv_dim=config.mm_hidden_size,
         )
         return resampler
     
-    if projector_type == 'adapt_spatial_resampler_v2_256':
-        target_sequence_length = 256
-        grid_size = int(math.sqrt(target_sequence_length))
-
-        resampler = AdaptSpatialResampler(
-            config=config,
-            grid_size=grid_size,
-            embed_dim = config.hidden_size,
-            num_heads = config.hidden_size // 128,
-            kv_dim=config.mm_hidden_size
-        )
-        return resampler
-    
-    if projector_type == 'adapt_spatial_resampler_v1':
+    elif projector_type == 'adapt_spatial_resampler_v1':
         target_sequence_length = 144
         grid_size = int(math.sqrt(target_sequence_length))
         resampler = AdaptSpatialResampler_v1(
@@ -114,55 +72,7 @@ def build_vision_projector(config, delay_load=False, **kwargs):
         )
         return resampler
     
-    if projector_type == 'uhd_v1_query64':
-        target_sequence_length = 64
-        grid_size = int(math.sqrt(target_sequence_length))
-        resampler = AdaptSpatialResampler_v1(
-            grid_size=grid_size,
-            embed_dim = config.hidden_size,
-            num_heads = config.hidden_size // 128,
-            kv_dim=config.mm_hidden_size,
-        )
-        return resampler
-    
-    if projector_type == 'mlp144':
-        target_sequence_length = 144
-        grid_size = int(math.sqrt(target_sequence_length))
-        resampler = MLP(
-            config=config,
-            grid_size=grid_size,
-            embed_dim = config.hidden_size,
-            num_heads = config.hidden_size // 128,
-            kv_dim=config.mm_hidden_size
-        )
-        return resampler
-    
-    if projector_type == 'mlp-v2':
-        target_sequence_length = 144
-        grid_size = int(math.sqrt(target_sequence_length))
-        resampler = MLP_v2(
-            config=config,
-            grid_size=grid_size,
-            embed_dim = config.hidden_size,
-            num_heads = config.hidden_size // 128,
-            kv_dim=config.mm_hidden_size
-        )
-        return resampler
-    
-
-    if projector_type == 'percive_sampler':
-        target_sequence_length = 144
-        grid_size = int(math.sqrt(target_sequence_length))
-        resampler = PerceiverResampler(
-            config=config,
-            grid_size=grid_size,
-            embed_dim = config.hidden_size,
-            num_heads = config.hidden_size // 128,
-            kv_dim=config.mm_hidden_size
-        )
-        return resampler
-    
-    if projector_type == "identity":
+    elif projector_type == "identity":
         return IdentityMap()
 
     raise ValueError(f"Unknown projector type: {projector_type}")

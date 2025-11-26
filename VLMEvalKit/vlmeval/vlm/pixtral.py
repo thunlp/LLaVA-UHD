@@ -18,18 +18,21 @@ class Pixtral(BaseModel):
             from mistral_inference.transformer import Transformer
             from mistral_common.tokens.tokenizers.mistral import MistralTokenizer
         except ImportError as err:
-            warnings.warn('Please install `mistral-inference` and `mistral_common`')
+            logging.critical('Please install `mistral-inference` and `mistral_common`')
             raise err
 
-        if get_cache_path(model_path) is None:
-            snapshot_download(repo_id=model_path)
-        cache_path = get_cache_path(self.model_path)
+        if os.path.exists(model_path):
+            cache_path = model_path
+        else:
+            if get_cache_path(model_path) is None:
+                snapshot_download(repo_id=model_path)
+            cache_path = get_cache_path(self.model_path, repo_type='models')
 
         self.tokenizer = MistralTokenizer.from_file(f'{cache_path}/tekken.json')
         model = Transformer.from_folder(cache_path, device='cpu')
         model.cuda()
         self.model = model
-        self.max_tokens = 512
+        self.max_tokens = 2048
 
     def generate_inner(self, message, dataset=None):
         try:
@@ -37,7 +40,7 @@ class Pixtral(BaseModel):
             from mistral_common.protocol.instruct.messages import UserMessage, TextChunk, ImageURLChunk
             from mistral_common.protocol.instruct.request import ChatCompletionRequest
         except ImportError as err:
-            warnings.warn('Please install `mistral-inference` and `mistral_common`')
+            logging.critical('Please install `mistral-inference` and `mistral_common`')
             raise err
 
         msg_new = []

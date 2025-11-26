@@ -37,6 +37,11 @@ def get_featurizer(name, activation_type="key", **kwargs):
         patch_size = 14
         model = CLIPVisionTower()
         dim = 1024
+    elif name == "siglip":
+        from .siglip import SigLipVisionTower
+        patch_size = 14
+        model = SigLipVisionTower()
+        dim = 1152
     elif name == "maskclip":
         from .MaskCLIP import MaskCLIPFeaturizer
         patch_size = 16

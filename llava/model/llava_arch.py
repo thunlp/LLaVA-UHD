@@ -123,7 +123,6 @@ class LlavaMetaModel:
             incompatible_keys = self.vision_resampler.load_state_dict(get_w(mm_projector_weights, "vision_resampler"), strict=False)
             rank0_print(f"Loaded vision resampler weights from {pretrain_mm_mlp_adapter}. Incompatible keys: {incompatible_keys}")
 
-
 def unpad_image(tensor, original_size):
     """
     Unpads a PyTorch tensor of a padded and resized image.
@@ -189,22 +188,22 @@ class LlavaMetaForCausalLM(ABC):
         image_feature = image_feature.view(num_frames, -1, num_dim)
         return image_feature
 
-    def concat_src_patch_images(self, images, patch_images, ind_tokens):
+    def concat_src_patch_images(self, images, patch_images, ind_tokens, per_patch_size = 14):
         all_images = []
         patch_sizes = []
         for src_image, patches, ind_token in zip(images, patch_images, ind_tokens):
             if len(ind_token) == 0:
                 all_images += [src_image]
                 img_h, img_w = src_image.shape[-2:]
-                patch_sizes.append((img_h // 14, img_w // 14))
+                patch_sizes.append((img_h // per_patch_size, img_w // per_patch_size))
             else:
                 patches = [patch for patch in patches]
                 slice_img_h, slice_img_w = patches[0].shape[-2:]
-                patch_sizes += [(slice_img_h // 14, slice_img_w // 14)] * len(patches)
+                patch_sizes += [(slice_img_h // per_patch_size, slice_img_w // per_patch_size)] * len(patches)
 
                 patches += [src_image]
                 abs_img_h, abs_img_w = src_image.shape[-2:]
-                patch_sizes.append((abs_img_h // 14, abs_img_w // 14))
+                patch_sizes.append((abs_img_h // per_patch_size, abs_img_w // per_patch_size))
                 
                 all_images += patches
 
@@ -223,57 +222,136 @@ class LlavaMetaForCausalLM(ABC):
         return image_features
     
     def partition_list(self, input_list, lengths):
-        """
-        按照指定的长度划分列表。
-
-        参数:
-        input_list (list): 要划分的原始列表。
-        lengths (list): 一个包含划分长度的整数列表。
-
-        返回:
-        list: 一个包含子列表的列表，每个子列表的长度由 lengths 指定。
-        """
         result = []
         current_index = 0
         for length in lengths:
             if current_index + length > len(input_list):
-                raise ValueError("划分长度超过了列表的总长度")
+                raise ValueError("The division length exceeds the total length of the list.")
             sublist = input_list[current_index:current_index + length]
             result.append(sublist)
             current_index += length
         if current_index != len(input_list):
-            raise ValueError("划分长度和列表总长度不一致")
+            raise ValueError("The division length does not match the total length of the list.")
         return result
     
     def encode_images_uhd_v1(self, images, patch_images, ind_tokens):
+        all_patch_images = []
+        all_images = []
+        all_ind_tokens = []
+        for batch_images, batch_patch_images, batch_ind_tokens in zip(images, patch_images, ind_tokens):
+            for cur_images, cur_patch_images, cur_ind_tokens in zip(batch_images, batch_patch_images, batch_ind_tokens):
+                all_images.append(cur_images)
+                all_patch_images.append(cur_patch_images)
+                all_ind_tokens.append(cur_ind_tokens)
+        images = all_images
+        patch_images = all_patch_images
+        ind_tokens = all_ind_tokens
         num_images = [len(ind_token) + 1 for ind_token in ind_tokens]
         # concat images
-        images, patch_sizes = self.concat_src_patch_images(images, patch_images, ind_tokens)
-        image_features = self.get_model().get_vision_tower()(images, patch_sizes)
+        per_patch_size = 14
+        down_sample_ratio = 1
 
+        if 'siglip2' in self.get_vision_tower().vision_tower_name:
+            model_config = self.get_model().get_vision_tower().vision_tower.config
+            per_patch_size = getattr(model_config, "patch_size", 16)
+            # per_patch_size = 14
+            if hasattr(model_config, "vision_config"):
+                vision_model_config = model_config.vision_config
+                if vision_model_config.get('merger_layer_index', False):
+                    merger_layer_index = vision_model_config['merger_layer_index']
+                    down_sample_ratio = down_sample_ratio * len(merger_layer_index)**2
+            else:   
+                if hasattr(model_config, 'merger_layer_index'):
+                    merger_layer_index = model_config.merger_layer_index
+                    down_sample_ratio = down_sample_ratio * len(merger_layer_index)**2
+                    
+        elif 'moonvit' in self.get_vision_tower().vision_tower_name:
+            model_config = self.get_model().get_vision_tower().vision_tower.config
+            per_patch_size = getattr(model_config, "patch_size", 14)
+            if hasattr(model_config, "vision_config"):
+                vision_model_config = model_config.vision_config
+                if vision_model_config.get('merger_layer_index', False):
+                    merger_layer_index = vision_model_config['merger_layer_index']
+                    down_sample_ratio = down_sample_ratio * len(merger_layer_index)**2
+            else:   
+                if hasattr(model_config, 'merger_layer_index'):
+                    merger_layer_index = model_config.merger_layer_index
+                    down_sample_ratio = down_sample_ratio * len(merger_layer_index)**2
+        
+        elif 'qwen2_5vl' in self.get_vision_tower().vision_tower_name:
+            model_config = self.get_model().get_vision_tower().vision_tower.config
+            per_patch_size = getattr(model_config, "patch_size", 14)
+        
+        images, patch_sizes = self.concat_src_patch_images(images, patch_images, ind_tokens, per_patch_size)
+        image_features = self.get_model().get_vision_tower()(images, patch_sizes)
+        max_patch_sizes = max([patch_size[0] * patch_size[1] for patch_size in patch_sizes])
         projected_image_features = []
         for image_feature, patch_size in zip(image_features, patch_sizes):
-            projected_image_feature = self.get_model().mm_projector(image_feature, tgt_size=patch_size) # 1, n, c
+            patch_size = (patch_size[0] // down_sample_ratio, patch_size[1] // down_sample_ratio)
+            if self.config.mm_projector_type == "resampler" and 'siglip2' in self.get_vision_tower().vision_tower_name:
+                projected_image_feature = self.get_model().mm_projector(image_feature, tgt_size=patch_size, max_patch_sizes=max_patch_sizes)
+            else:
+                projected_image_feature = self.get_model().mm_projector(image_feature, tgt_size=patch_size) # 1, n, c
             projected_image_feature = projected_image_feature[0]
             projected_image_features.append(projected_image_feature)
-
         # chunk features
         projected_image_features = self.partition_list(projected_image_features, num_images)
         return projected_image_features
-    
-    def encode_images_uhd_v2(self, images, patch_images, ind_tokens):
-        # start = time.time()
-        num_images = [len(ind_token) + 1 for ind_token in ind_tokens]
+
+    def encode_images_uhd_v2_5(self, images):
         # concat images
-        images, patch_sizes = self.concat_src_patch_images(images, patch_images, ind_tokens)
+        per_patch_size = 14
+        down_sample_ratio = 1
 
-        tgt_sizes = torch.tensor(patch_sizes, dtype=torch.long, device=images[0].device)
+        if 'siglip2' in self.get_vision_tower().vision_tower_name:
+            model_config = self.get_model().get_vision_tower().vision_tower.config
+            per_patch_size = getattr(model_config, "patch_size", 16)
+            # per_patch_size = 14
+            if hasattr(model_config, "vision_config"):
+                vision_model_config = model_config.vision_config
+                if vision_model_config.get('merger_layer_index', False):
+                    merger_layer_index = vision_model_config['merger_layer_index']
+                    down_sample_ratio = down_sample_ratio * len(merger_layer_index)**2
+            else:   
+                if hasattr(model_config, 'merger_layer_index'):
+                    merger_layer_index = model_config.merger_layer_index
+                    down_sample_ratio = down_sample_ratio * len(merger_layer_index)**2
+                    
+        elif 'moonvit' in self.get_vision_tower().vision_tower_name:
+            model_config = self.get_model().get_vision_tower().vision_tower.config
+            per_patch_size = getattr(model_config, "patch_size", 14)
+            if hasattr(model_config, "vision_config"):
+                vision_model_config = model_config.vision_config
+                if vision_model_config.get('merger_layer_index', False):
+                    merger_layer_index = vision_model_config['merger_layer_index']
+                    down_sample_ratio = down_sample_ratio * len(merger_layer_index)**2
+            else:   
+                if hasattr(model_config, 'merger_layer_index'):
+                    merger_layer_index = model_config.merger_layer_index
+                    down_sample_ratio = down_sample_ratio * len(merger_layer_index)**2
+        
+        elif 'qwen2_5vl' in self.get_vision_tower().vision_tower_name:
+            model_config = self.get_model().get_vision_tower().vision_tower.config
+            per_patch_size = getattr(model_config, "patch_size", 14)
 
-        features_1x = self.get_model().get_vision_tower().forward_uhd_v2(images, tgt_sizes) #list torch.Size([1, 550, 1024])
+        patch_sizes = []
+        all_images = []
+        for batch_images in images:
+            for cur_images in batch_images:
+                all_images.append(cur_images)
+        images = all_images
+        for src_image in images:
+            img_h, img_w = src_image.shape[-2:]
+            patch_sizes.append((img_h // per_patch_size, img_w // per_patch_size))
+        image_features = self.get_model().get_vision_tower()(images, patch_sizes)
+        projected_image_features = []
+        for image_feature, patch_size in zip(image_features, patch_sizes):
+            patch_size = (patch_size[0] // down_sample_ratio, patch_size[1] // down_sample_ratio)
+            projected_image_feature = self.get_model().mm_projector(image_feature, tgt_size=patch_size) # 1, n, c
+            projected_image_feature = projected_image_feature[0]
+            projected_image_features.append(projected_image_feature)
+        return projected_image_features    
 
-        return self.get_model().mm_projector.forward_with_featup(features_1x, patch_sizes, images, num_images)
-
-    
     def encode_multimodals(self, videos_or_images, video_idx_in_batch, split_sizes=None):
         videos_or_images_features = self.get_model().get_vision_tower()(videos_or_images)
         per_videos_or_images_features = torch.split(videos_or_images_features, split_sizes, dim=0)  # tuple, (dim_1, 576, 4096)
@@ -308,16 +386,13 @@ class LlavaMetaForCausalLM(ABC):
         image_feature = image_feature.flatten(1, 2).flatten(2, 3) #torch.Size([3584, 224, 14])
         image_feature = torch.cat((image_feature, self.model.image_newline[:, None, None].expand(*image_feature.shape[:-1], 1).to(image_feature.device)), dim=-1)#torch.Size([3584, 224, 15])
         if getattr(self.config, "add_faster_video", False):
-            # import pdb; pdb.set_trace()
             # (3584, 832, 14) -> (3584, 64, 13, 14)
             image_feature = image_feature.view(feature_dim, num_frames,resize_h, -1)
             #  (3584, 64, 13, 14) -> (64, 13, 14, 3584)
             image_feature = image_feature.permute(1, 2, 3, 0).contiguous()
             # (64, 13, 14, 3584) -> (64, 13*14, 3584)
             image_feature = image_feature.flatten(1, 2)
-            # import pdb; pdb.set_trace()
             return image_feature
-        # import pdb; pdb.set_trace()
         image_feature = image_feature.flatten(1, 2).transpose(0, 1) #torch.Size([3360, 3584])
         return image_feature
 
@@ -338,7 +413,6 @@ class LlavaMetaForCausalLM(ABC):
             modalities = [modalities]
 
         model_mode =  getattr(self.config, 'model_mode', 'llava')
-        # import pdb; pdb.set_trace()
         if model_mode == 'llava' and (type(images) is list or images.ndim == 5):
             if type(images) is list:
                 images = [x.unsqueeze(0) if x.ndim == 3 else x for x in images] #torch.Size([16, 3, 384, 384])
@@ -388,7 +462,6 @@ class LlavaMetaForCausalLM(ABC):
                     # currently image_feature is a tensor of shape (4, num_patches, hidden_size)
                     # we want to first unflatten it to (2, 2, h, w, hidden_size)
                     # rank0_print("At least we are reaching here")
-                    # import pdb; pdb.set_trace()
                     if image_idx in video_idx_in_batch:  # video operations
                         # rank0_print("Video")
                         if mm_newline_position == "grid":
@@ -398,16 +471,12 @@ class LlavaMetaForCausalLM(ABC):
                                 faster_video_feature = self.add_token_per_grid(all_faster_video_features[image_idx])
                                 # Add a token for each frame
                                 concat_slow_fater_token = []
-                                # import pdb; pdb.set_trace()
                                 for _ in range(image_feature.shape[0]):
                                     if _ % self.config.faster_token_stride == 0:
                                         concat_slow_fater_token.append(torch.cat((image_feature[_], self.model.faster_token[None].to(image_feature.device)), dim=0))
                                     else:
                                         concat_slow_fater_token.append(torch.cat((faster_video_feature[_], self.model.faster_token[None].to(image_feature.device)), dim=0))
-                                # import pdb; pdb.set_trace()
                                 image_feature = torch.cat(concat_slow_fater_token)
-
-                                # print("!!!!!!!!!!!!")
                         
                             new_image_features.append(image_feature)
                         elif mm_newline_position == "frame":
@@ -495,10 +564,17 @@ class LlavaMetaForCausalLM(ABC):
                 image_features = new_image_features
             else:
                 raise ValueError(f"Unexpected mm_patch_merge_type: {self.config.mm_patch_merge_type}")
-        elif model_mode == 'uhd_v2':
-            image_features = self.encode_images_uhd_v2(images, patch_images, ind_tokens)
+        # elif model_mode == 'uhd_v2':
+        #     image_features = self.encode_images_uhd_v2(images, patch_images, ind_tokens)
         elif model_mode == 'uhd_v1':
-            image_features = self.encode_images_uhd_v1(images, patch_images, ind_tokens)    
+            image_features = self.encode_images_uhd_v1(images, patch_images, ind_tokens)
+            all_ind_tokens = []
+            for batch_ind_tokens in ind_tokens:
+                for cur_ind_tokens in batch_ind_tokens:
+                    all_ind_tokens.append(cur_ind_tokens)
+            ind_tokens = all_ind_tokens
+        elif model_mode == 'uhd_v2_5':
+            image_features = self.encode_images_uhd_v2_5(images)
         else:
             image_features = self.encode_images(images)
         # [2x[3xtorch.Size([144, 3584])]]
@@ -546,7 +622,7 @@ class LlavaMetaForCausalLM(ABC):
                 new_labels.append(labels[batch_idx])
                 cur_image_idx += 1
                 continue
-
+            
             image_token_indices = [-1] + torch.where(cur_input_ids == IMAGE_TOKEN_INDEX)[0].tolist() + [cur_input_ids.shape[0]]
             cur_input_ids_noim = []
             cur_labels = labels[batch_idx]
@@ -581,7 +657,7 @@ class LlavaMetaForCausalLM(ABC):
                         cur_image_idx += 1
                         cur_ind_tokens_embeds = []
                         
-                    if len(cur_ind_tokens_embeds) == 0: # 没有切片
+                    if len(cur_ind_tokens_embeds) == 0: 
                         if model_mode == 'uhd_v1' or model_mode == 'uhd_v2':
                             cur_image_features = cur_image_features[-1]
                     else:
@@ -592,11 +668,11 @@ class LlavaMetaForCausalLM(ABC):
                             slice_image_features = cur_image_features[:-1]
                             _cur_image_features = []
                             for image_feature_, ind_token_embeds_ in zip(slice_image_features, cur_ind_tokens_embeds):
+                                # _cur_image_features.append(torch.cat([image_feature_, ind_token_embeds_], dim=0))
                                 _cur_image_features.append(torch.cat([image_feature_, ind_token_embeds_[None]], dim=0))
                             _cur_image_features.append(abs_image_features)
                             cur_image_features = torch.cat(_cur_image_features, dim=0)
                         elif model_mode == 'uhd_v1' or model_mode == 'uhd_v2':
-                            # import pdb;pdb.set_trace()
                             abs_image_features = cur_image_features[-1]
                             slice_image_features = cur_image_features[:-1] # list
                             
@@ -625,7 +701,6 @@ class LlavaMetaForCausalLM(ABC):
                                 ori_patch_size = (edge, int(edge/h_w_ratio))
                             else:
                                 ori_patch_size = (int(edge*h_w_ratio), edge)
-                            # import pdb;pdb.set_trace()
                             # 144, 4096
                             abs_image_features= abs_image_features.reshape(edge, edge, channels).permute(2, 0, 1).unsqueeze(0)
                             # abs_image_features = F.interpolate(abs_image_features, size=ori_patch_size, mode='bilinear', align_corners=False)
@@ -639,7 +714,6 @@ class LlavaMetaForCausalLM(ABC):
                             
                             slice_stack = slice_image_features_with_batch.reshape(slice_in_column, slice_in_row, edge, edge, channels)
                             slice_stack = slice_stack.permute(0, 2, 1, 3, 4).reshape(slice_in_column * edge, slice_in_row * edge, channels)
-                            # import pdb;pdb.set_trace()
                             enter_notation = enter_notation.unsqueeze(0).unsqueeze(0).expand(slice_in_column * edge, -1, -1)
                             slice_stack = torch.cat([slice_stack, enter_notation], dim=1)  
                             slice_stack = slice_stack.reshape(-1, channels)
@@ -652,7 +726,6 @@ class LlavaMetaForCausalLM(ABC):
 
             cur_new_input_embeds = [x.to(self.device) for x in cur_new_input_embeds]
 
-            # import pdb; pdb.set_trace()
             cur_new_input_embeds = torch.cat(cur_new_input_embeds)
             cur_new_labels = torch.cat(cur_new_labels)
 
@@ -717,7 +790,6 @@ class LlavaMetaForCausalLM(ABC):
             right_add = random.randint(left_add, self.config.pos_skipping_range)
             position_ids[:, :split_position] += left_add
             position_ids[:, split_position:] += right_add
-        # import pdb; pdb.set_trace()
         # rank0_print("Finish preparing")
         return None, position_ids, attention_mask, past_key_values, new_input_embeds, new_labels
 

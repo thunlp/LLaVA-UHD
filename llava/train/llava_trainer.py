@@ -4,14 +4,21 @@ import torch.nn as nn
 import datetime
 
 from accelerate import Accelerator
-from accelerate.utils import InitProcessGroupKwargs, GradientAccumulationPlugin
+from accelerate.utils import InitProcessGroupKwargs, GradientAccumulationPlugin, DataLoaderConfiguration
 from torch.utils.data import Dataset, Sampler, DataLoader
 
 from trl.trainer import DPOTrainer
 from trl.trainer.utils import DPODataCollatorWithPadding
 
 from transformers import Trainer
-from transformers.trainer import is_sagemaker_mp_enabled, get_parameter_names, has_length, ALL_LAYERNORM_LAYERS, logger, is_accelerate_available, is_datasets_available, GradientAccumulationPlugin
+
+
+from transformers.utils import is_sagemaker_mp_enabled, logging, is_accelerate_available, is_datasets_available
+logger = logging.get_logger(__name__)
+from transformers.trainer_pt_utils import get_parameter_names
+from transformers.trainer_utils import has_length
+from transformers.pytorch_utils import ALL_LAYERNORM_LAYERS
+
 from transformers.trainer_utils import seed_worker
 from transformers.trainer_pt_utils import get_length_grouped_indices as get_length_grouped_indices_hf
 from transformers.trainer_pt_utils import AcceleratorConfig
@@ -25,6 +32,42 @@ if is_datasets_available():
     import datasets
 
 from llava.utils import rank0_print
+from packaging import version
+import contextlib
+import pickle
+import random
+import numpy as np
+from transformers.trainer_pt_utils import set_rng_state_for_device
+from transformers.utils import (
+    is_accelerate_available,
+    is_datasets_available,
+    is_sagemaker_mp_enabled,
+    is_torch_hpu_available,
+    is_torch_mlu_available,
+    is_torch_musa_available,
+    is_torch_npu_available,
+    is_torch_xla_available,
+    logging,
+)
+from transformers.training_args import OptimizerNames, ParallelMode, TrainingArguments
+
+def safe_globals():
+    # Starting from version 2.4 PyTorch introduces a check for the objects loaded
+    # with torch.load(weights_only=True). Starting from 2.6 weights_only=True becomes
+    # a default and requires allowlisting of objects being loaded.
+    # See: https://github.com/pytorch/pytorch/pull/137602
+    # See: https://pytorch.org/docs/stable/notes/serialization.html#torch.serialization.add_safe_globals
+    # See: https://github.com/huggingface/accelerate/pull/3036
+    if version.parse(torch.__version__).release < version.parse("2.6").release:
+        return contextlib.nullcontext()
+
+    np_core = np._core if version.parse(np.__version__) >= version.parse("2.0.0") else np.core
+    allowlist = [np_core.multiarray._reconstruct, np.ndarray, np.dtype]
+    # numpy >1.25 defines numpy.dtypes.UInt32DType, but below works for
+    # all versions of numpy
+    allowlist += [type(np.dtype(np.uint32))]
+
+    return torch.serialization.safe_globals(allowlist)
 
 
 def maybe_zero_3(param, ignore_status=False, name=None):
@@ -247,9 +290,11 @@ class LLaVATrainer(Trainer):
         accelerator_kwargs = InitProcessGroupKwargs(timeout=timedelta(weeks=52))
         rank0_print("Setting NCCL timeout to INF to avoid running errors.")
 
+        dataloader_config = DataLoaderConfiguration()
+
         # create accelerator object
-        self.accelerator = Accelerator(dispatch_batches=self.args.dispatch_batches, split_batches=self.args.split_batches, deepspeed_plugin=self.args.deepspeed_plugin, gradient_accumulation_plugin=gradient_accumulation_plugin, kwargs_handlers=[accelerator_kwargs]
-        )
+        # self.accelerator = Accelerator(dispatch_batches=self.args.dispatch_batches, split_batches=self.args.split_batches, deepspeed_plugin=self.args.deepspeed_plugin, gradient_accumulation_plugin=gradient_accumulation_plugin, kwargs_handlers=[accelerator_kwargs])
+        self.accelerator = Accelerator(dataloader_config=dataloader_config, deepspeed_plugin=self.args.deepspeed_plugin, gradient_accumulation_plugin=gradient_accumulation_plugin, kwargs_handlers=[accelerator_kwargs])
         # some Trainer classes need to use `gather` instead of `gather_for_metrics`, thus we store a flag
         self.gather_function = self.accelerator.gather_for_metrics
 
@@ -368,10 +413,13 @@ class LLaVATrainer(Trainer):
             decay_parameters = get_parameter_names(opt_model, ALL_LAYERNORM_LAYERS)
             decay_parameters = [name for name in decay_parameters if "bias" not in name]
             lr_mapper = {}
+            lr_mapper_merger = {}
             if self.args.mm_projector_lr is not None:
                 lr_mapper["mm_projector"] = self.args.mm_projector_lr
             if self.args.mm_vision_tower_lr is not None:
                 lr_mapper["vision_tower"] = self.args.mm_vision_tower_lr
+                if self.args.mm_vision_tower_merger_lr is not None:
+                    lr_mapper_merger["merger"] = self.args.mm_vision_tower_merger_lr
             if len(lr_mapper) > 0:
                 special_lr_parameters = [name for name, _ in opt_model.named_parameters() if any(module_keyword in name for module_keyword in lr_mapper)]
                 optimizer_grouped_parameters = [
@@ -385,6 +433,25 @@ class LLaVATrainer(Trainer):
                     },
                 ]
                 for module_keyword, lr in lr_mapper.items():
+                    if lr_mapper_merger:
+                        module_parameters = [name for name, _ in opt_model.named_parameters() if module_keyword in name and "merger" not in name]
+                    else:
+                        module_parameters = [name for name, _ in opt_model.named_parameters() if module_keyword in name]
+                    optimizer_grouped_parameters.extend(
+                        [
+                            {
+                                "params": [p for n, p in opt_model.named_parameters() if (n in decay_parameters and n in module_parameters and p.requires_grad)],
+                                "weight_decay": self.args.weight_decay,
+                                "lr": lr,
+                            },
+                            {
+                                "params": [p for n, p in opt_model.named_parameters() if (n not in decay_parameters and n in module_parameters and p.requires_grad)],
+                                "weight_decay": 0.0,
+                                "lr": lr,
+                            },
+                        ]
+                    )
+                for module_keyword, lr in lr_mapper_merger.items():
                     module_parameters = [name for name, _ in opt_model.named_parameters() if module_keyword in name]
                     optimizer_grouped_parameters.extend(
                         [
@@ -431,35 +498,63 @@ class LLaVATrainer(Trainer):
 
         return self.optimizer
 
-    def _save_checkpoint(self, model, trial, metrics=None):
-        if getattr(self.args, "tune_mm_mlp_adapter", False) or (
-            hasattr(self.args, "mm_tunable_parts") and (len(self.args.mm_tunable_parts.split(",")) == 1 and ("mm_mlp_adapter" in self.args.mm_tunable_parts or "mm_vision_resampler" in self.args.mm_tunable_parts))
-        ):
-            from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
-
-            checkpoint_folder = f"{PREFIX_CHECKPOINT_DIR}-{self.state.global_step}"
-
-            run_dir = self._get_output_dir(trial=trial)
-            output_dir = os.path.join(run_dir, checkpoint_folder)
-
-            # Only save Adapter
-            keys_to_match = ["mm_projector", "vision_resampler"]
-            if getattr(self.args, "use_im_start_end", False):
-                keys_to_match.extend(["embed_tokens", "embed_in"])
-
-            weight_to_save = get_mm_adapter_state_maybe_zero_3(self.model.named_parameters(), keys_to_match)
-
-            if self.args.local_rank == 0 or self.args.local_rank == -1:
-                self.model.config.save_pretrained(output_dir)
-                torch.save(weight_to_save, os.path.join(output_dir, f"mm_projector.bin"))
-        else:
-            super(LLaVATrainer, self)._save_checkpoint(model, trial, metrics)
+    def _save_checkpoint(self, model, trial):
+        super(LLaVATrainer, self)._save_checkpoint(model, trial)
 
     def _save(self, output_dir: Optional[str] = None, state_dict=None):
         if getattr(self.args, "tune_mm_mlp_adapter", False):
             pass
         else:
             super(LLaVATrainer, self)._save(output_dir, state_dict)
+    
+    def _load_rng_state(self, checkpoint):
+        # Load RNG states from `checkpoint`
+        if checkpoint is None:
+            return
+
+        if self.args.world_size > 1:
+            process_index = self.args.process_index
+            rng_file = os.path.join(checkpoint, f"rng_state_{process_index}.pth")
+            if not os.path.isfile(rng_file):
+                logger.info(
+                    f"Didn't find an RNG file for process {process_index}, if you are resuming a training that "
+                    "wasn't launched in a distributed fashion, reproducibility is not guaranteed."
+                )
+                return
+        else:
+            rng_file = os.path.join(checkpoint, "rng_state.pth")
+            if not os.path.isfile(rng_file):
+                logger.info(
+                    "Didn't find an RNG file, if you are resuming a training that was launched in a distributed "
+                    "fashion, reproducibility is not guaranteed."
+                )
+                return
+
+        with safe_globals():
+            try:
+                checkpoint_rng_state = torch.load(rng_file, weights_only=True)
+            except (pickle.UnpicklingError, RuntimeError, TypeError) as e:
+                logger.warning(
+                    f"{e}"
+                )
+                checkpoint_rng_state = torch.load(rng_file, weights_only=False)
+        random.setstate(checkpoint_rng_state["python"])
+        np.random.set_state(checkpoint_rng_state["numpy"])
+        torch.random.set_rng_state(checkpoint_rng_state["cpu"])
+        if is_torch_xla_available():
+            xm.set_rng_state(checkpoint_rng_state["xla"])
+
+        is_distributed = self.args.parallel_mode == ParallelMode.DISTRIBUTED
+        if torch.cuda.is_available():
+            set_rng_state_for_device("CUDA", torch.cuda, checkpoint_rng_state, is_distributed)
+        if is_torch_npu_available():
+            set_rng_state_for_device("NPU", torch.npu, checkpoint_rng_state, is_distributed)
+        if is_torch_hpu_available():
+            set_rng_state_for_device("HPU", torch.hpu, checkpoint_rng_state, is_distributed)
+        if is_torch_mlu_available():
+            set_rng_state_for_device("MLU", torch.mlu, checkpoint_rng_state, is_distributed)
+        if is_torch_musa_available():
+            set_rng_state_for_device("MUSA", torch.musa, checkpoint_rng_state, is_distributed)
 
 
 class LLaVADPOTrainer(DPOTrainer):
@@ -479,7 +574,7 @@ class LLaVADPOTrainer(DPOTrainer):
         else:
             return super()._get_train_sampler()
 
-    def _save_checkpoint(self, model, trial, metrics=None):
+    def _save_checkpoint(self, model, trial):
         if getattr(self.args, "tune_mm_mlp_adapter", False) or (
             hasattr(self.args, "mm_tunable_parts") and (len(self.args.mm_tunable_parts.split(",")) == 1 and ("mm_mlp_adapter" in self.args.mm_tunable_parts or "mm_vision_resampler" in self.args.mm_tunable_parts))
         ):
@@ -501,11 +596,6 @@ class LLaVADPOTrainer(DPOTrainer):
                 self.model.config.save_pretrained(output_dir)
                 torch.save(weight_to_save, os.path.join(output_dir, f"mm_projector.bin"))
         else:
-            # super(LLaVADPOTrainer, self)._save_checkpoint(model, trial, metrics)
-            # print(type(model))
-            # from transformers.modeling_utils import unwrap_model
-            # print(type(unwrap_model(model)))
-            # print(unwrap_model(model).config)
             if self.args.lora_enable:
                 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 
@@ -517,7 +607,7 @@ class LLaVADPOTrainer(DPOTrainer):
                 unwrapped_model = unwrap_model(model)
                 self.save_my_lora_ckpt(output_dir, self.args, unwrapped_model)
             else:
-                super(LLaVADPOTrainer, self)._save_checkpoint(model, trial, metrics)
+                super(LLaVADPOTrainer, self)._save_checkpoint(model, trial)
 
     def _save(self, output_dir: Optional[str] = None, state_dict=None):
         if getattr(self.args, "tune_mm_mlp_adapter", False):

@@ -1,28 +1,24 @@
 <div align="center">
   
-# LLaVA-UHD v2
+![The LLaVA-UHD-v3 Logo](figs/github_banner_puretext.png)
 
-**LLaVA-UHD v2: an MLLM Integrating High-Resolution Semantic Pyramid via Hierarchical Window Transformer(AAAI-26)**
+**LLaVA-UHD-v3: PROGRESSIVE VISUAL COMPRES-SION FOR EFFICIENT NAIVE-RESOLUTION ENCODING IN MLLMS**
 
-
-<a target="_blank" href="https://arxiv.org/abs/2412.13871">
-<img style="height:22pt" src="https://img.shields.io/badge/-Paper-red?style=flat&logo=arxiv"></a>
-
-<!-- <a target="_blank" href="https://github.com/thunlp/LLaVA-UHD"> 
-<img style="height:22pt" src="https://img.shields.io/badge/-Code-green?style=flat&logo=github"></a> -->
-
-<a target="_blank" href="https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B">
-<img style="height:22pt" src="https://img.shields.io/badge/-🤗%20Models-green?style=flat"></a>
-
-<a target="_blank" href="https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data">  
-<img style="height:22pt" src="https://img.shields.io/badge/-🤗%20Dataset-blue?style=flat"></a>
-
-<br>
-
+<p align="center">
+🤗 <a href="https://huggingface.co/Sishxo/LLaVA-UHD-v3"> HuggingFace Models</a>&nbsp&nbsp | &nbsp&nbsp🌐 <a href="https://LLaVA-UHD-v3"> Homepage</a>&nbsp&nbsp | &nbsp&nbsp📄 <a href="https://openreview.net/pdf/3bd376fce3e8ff071bfd2f7b509f651553e2cb38.pdf">OpenReview</a>
+</p>
 </div>
 
+
+
+This repository hosts the code, data of **LLaVA-UHD-v3**, a multimodal large language model (MLLM) built upon our proposed Progressive Visual Compression (PVC) for efficient naive-resolution encoding. Our model not only achieves performance comparable to advanced MLLMs like Qwen2-VL across 15 diverse benchmarks but also delivers a 1.9x reduction in Time-to-First-Token (TTFT). Moreover, LLaVA-UHD v3 can be trained efficiently in academic settings, requiring approximately 300 hours on 32 A100 GPUs. For more details, please visit our 📃 [paper](https://openreview.net/pdf/3bd376fce3e8ff071bfd2f7b509f651553e2cb38.pdf) here
+
 ## News
--[2025/11/08] 📢🔥 LLaVA-UHD v2 is accepted by AAAI-26.
+-[2025/11/05] 🧠The Pilot experiment related code and benchmark mentioned in the paper are available in [hugging-face](https://huggingface.co/datasets/ZzzHelloWorld/Pilot_experiment).The checkpoints for global naive-resolution visual encoding ([GNE](https://huggingface.co/ZzzHelloWorld/llava-uhd-final)) and slice-based encoding ([SBE](https://huggingface.co/ZzzHelloWorld/llava_uhd_resampler_query_49)) have also been released.
+
+-[2025/11/05] 🔥LLaVA-UHD v3 achieves a superior trade-off between efficiency and performance across 15 diverse benchmarks. Our novel vision encoder, ViT-UHD with Progressive Visual Compression (PVC), enables efficient naive-resolution encoding, significantly reducing latency while maintaining competitive performance. Model checkpoints are available in [hugging-face](https://huggingface.co/ZzzHelloWorld/llava-uhd-final).
+
+-[2025/11/01] 📢[LLaVA-UHD-v3]([https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11080.pdf](https://openreview.net/forum?id=T4pK6ByRit)) has been submited to ICLR2026.
 
 -[2025/04/01] 🔥We released new checkpoints of LLaVA-UHD v2 based on [Qwen2.0-7B-instruct](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B) and [Vicuna-13B](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Vicuna-13B).
 
@@ -40,91 +36,140 @@ You can find the original project instruction and code of **LLaVA-UHD** in branc
 
 -[2024/07/01] 📢[LLaVA-UHD](https://www.ecva.net/papers/eccv_2024/papers_ECCV/papers/11080.pdf) is accepted by ECCV2024.
 
-## Overview
-**LLaVA-UHD v2**, an MLLM with advanced perception abilities by introducing a well-designed vision-language projector, the Hierarchical window (Hiwin) transformer. Hiwin transformer enhances MLLM's ability to capture diverse multi-modal visual granularities, by incorporating 
-our constructed high-resolution semantic pyramid. 
-Notably, our model built on **LLaVA-UHD**, brings an average boost of 3.7% across 14 benchmarks compared with the baseline
-method, 9.3% on DocVQA for instance. 
-Visit our 📃 [paper](https://arxiv.org/pdf/2412.13871) here!
+## Performance
 
-![The LLaVA-UHD framework](doc/arch.png)
+#### LLaVA-UHD-v3
 
-LLaVA-UHD v2 includes two key components: 
+![The LLaVA-UHD-v3 Performance](figs/radar_and_mllm_perfo.png)
 
-(i) **Visual detail injection module**, which progressively injects low-level visual details into high-level language-aligned semantics features, thereby forming an inverse semantic pyramid (ISP),
-and
-![pyramid](doc/pyramid.png)
+![The LLaVA-UHD-v3 Performance Figure 1](figs/mllm_numeric_figure_pt1.png)
 
-(ii) **hierarchical window attention**, which leverages cross-scale windows to condense multi-level semantics from the ISP. ![The Hierarchical Window Attention](doc/HiWin.png)
+![The LLaVA-UHD-v3 Performance Figure 2](figs/mllm_numeric_figure_pt2.png)
 
-## Environment Preparing
-1. To reproduce the results of the paper, please set up the Python environment using the following code:
-```bash
-conda create -n llava-uhd python=3.10
-conda activate llava-uhd
-sh install.sh
+#### ViT-UHD
+<p align="center">
+  <img src="figs/ViTUHD-performace.png" alt="The ViT-UHD Performance" width="50%">
+  <img src="figs/ViT-UHD-performance-figure.png" alt="The ViT-UHD Performance" width="80%">
+</p>
+
+## Highlights
+
+![The LLaVA-UHD-v3 framework](figs/LLaVA_UHD_v3.png)
+
+🧠 **Progressive Visual Compression (PVC)**: LLaVA-UHD v3 introduces a novel visual encoding strategy for efficient naive-resolution processing in MLLMs, combining fine-grained tokenization with hierarchical compression.
+
+💡 **Refined Patch Embedding (RPE)**: Flexibly scales patch sizes to produce detailed visual tokens while maintaining full compatibility with pretrained Vision Transformers, enabling richer visual representations.
+
+💡 **Windowed Token Compression (WTC)**: Progressively merges local token representations within the vision encoder, reducing sequence length and computational cost without losing holistic visual context.
+
+🏆 **Preserved Holistic Understanding**: Unlike slice-based approaches, PVC maintains full-scene semantics, preventing fragmented interpretations common in other naive-resolution encoding methods.
+
+⚡ **Efficient and Competitive**: Achieves strong performance on a wide range of vision-language benchmarks, rivaling state-of-the-art models like Qwen2-VL, while significantly lowering inference latency.
+
+This repository provides examples, usage instructions, and best practices to help developers leverage LLaVA-UHD v3 for efficient, high-fidelity vision-language tasks.
+
+
+## Quick Start
+```
+pip install "transformers>=4.51.0"
 ```
 
-2. Download the checkpoints of [CLIP-ViT-L/14-336](https://huggingface.co/openai/clip-vit-large-patch14-336) and [Vicuna-7B-v1.5](https://huggingface.co/lmsys/vicuna-7b-v1.5). And put them into ```./pretrained_models```. In the checkpoint path of vicuna-7b-v1.5, set 'do_sample' in 'generation_config.json' as 'True', otherwise there is an error when saving training checkpoint.
-
-If something wrong happens, please kindly refer to the issues of [LLaVA](https://github.com/haotian-liu/LLaVA/issues) 
-or submit issues in our repository.
-
-## Data Preparing
-1. **Visual detail injection module pre-training Data**:
-Download [MS-COCO stuff 2017](https://github.com/nightrome/cocostuff).
-2. **Pretraining Data**: Download the 558K subset of the LAION-CC-SBU dataset with BLIP captions we use in the paper [here](https://huggingface.co/datasets/liuhaotian/LLaVA-Pretrain).
-And put the data into ```./playground/data```. 
-3. **Fine-tuning Data**: Please download all images and the instruction-tuning annotations ```llava-uhd-v2-sft-data.json``` in [LLaVA-UHD-v2-SFT-Data](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data). And place them in the ```./playground/data```.
-
-We organize the data like the official code of [LLaVA](https://github.com/haotian-liu/LLaVA). If necessary, you can refer to it.
-
-## Training Script
-1. **Visual detail injection module pre-training**:
-Please use vdim-pretrain.sh, and all hyper parameters are in ```./vdim/configs/vdim_upsampler.yaml```. You can directly use our pretrained [VDIM module](https://huggingface.co/YipengZhang/LLaVA-UHD-v2/clip-large-vdim.ckpt) of CLIP-ViT-L/14-336.
-```bash
-sh vdim-pretrain.sh
+We adapt our model with ```transformers```, here we show a example of how to chat with our **LLaVA-UHD-v3** conveniently.
+#### Using 🤗 Transformers to Chat
 ```
-2. **model training**:
-Please refer to train.sh for pretraining script and fine-tuning script (we comment in the file). 
-If you want to do end-to-end pretraining, fine-tuning and evalutation, please run the following command.
-You can directly use our pretrained [multimodal_projector](https://huggingface.co/YipengZhang/LLaVA-UHD-v2/mm_projector.bin).
+from transformers import AutoModelForCasualLM, AutoProcessor
 
-```bash
-sh model-train.sh
+# default: Load the model on the available device(s)
+model = AutoModelForImageTextToText.from_pretrained(
+    "Sishxo/LLaVA-UHD-v3", dtype="auto", device_map="auto"
+)
+
+# We recommend enabling flash_attention_2 for better acceleration and memory saving, especially in multi-image and video scenarios.
+# model = AutoModelForImageTextToText.from_pretrained(
+#     "Sishxo/LLaVA-UHD-v3",
+#     dtype=torch.bfloat16,
+#     attn_implementation="flash_attention_2",
+#     device_map="auto",
+# )
+
+processor = AutoProcessor.from_pretrained("Sishxo/LLaVA-UHD-v3")
+
+messages = [
+    {
+        "role": "user",
+        "content": [
+            {"type": "image", "image": "file:///path/to/your/image.jpg"},
+            {"type": "text", "text": "Describe this image."},
+        ],
+    }
+]
+
+# Preparation for inference
+inputs = processor.apply_chat_template(
+    messages,
+    tokenize=True,
+    add_generation_prompt=True,
+    return_dict=True,
+    return_tensors="pt"
+)
+inputs = inputs.to(model.device)
+
+# Inference: Generation of the output
+generated_ids = model.generate(**inputs, max_new_tokens=128)
+generated_ids_trimmed = [
+    out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
+]
+output_text = processor.batch_decode(
+    generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
+)
+print(output_text)
 ```
 
-## Evaluation
-**1. Evaluation script**:
-We use evaluation scripts to evaluate **MME, AI2D, DocVQA, ChartVQA, TextVQA, GQA, SciQA-IMG**.
-You can run evaluation scripts in eval.sh:
-```bash
-sh eval.sh dir_name_in_checkpoints_new
-# e.g. sh eval.sh llava-uhd-144-7b
-# llava-uhd-144-7b is the dir_name stored in the path of ./checkpoints_new
-```
-Details of data organization:
-1. please refer to [here](https://github.com/haotian-liu/LLaVA/blob/main/docs/Evaluation.md) for help.  We provide the same script to complete the testing.
-2. For DocVQA, ChartVQA, please download images from [ureader-instruction-1.0](https://huggingface.co/datasets/Mizukiluke/ureader-instruction-1.0), and download the annotations from [LLaVA-UHD-v2-Evaluation](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-Evaluation), which are also constructed from [ureader-instruction-1.0](https://huggingface.co/datasets/Mizukiluke/ureader-instruction-1.0).
+#### Evaluation
 
-**2. VLMEvalKit**:
-We use [VLMEvalKit](https://github.com/open-compass/VLMEvalKit) to evaluete **OCR-Bench, MMMU-val, SEED-Image, MMB, RealWorldQA, HR-Bench**. We integrate VLMEvalKit into this repository for better reproducibility. You can follow the setup instruction of [VLMEvalKit](https://github.com/open-compass/VLMEvalKit), and evaluate our model with this scripts:
-```bash
-sh VLMEvalKit/eval.sh
-```
+1. Run setup script using the following code:
+   ```
+    conda create -n LLaVA-UHD-v3-eval python=3.10
+    conda activate LLaVA-UHD-v3-eval
+    bash setup_eval_env.sh
+   ```
+2. Run eval script:
+    ```
+      bash eval.sh
+    ```
 
 
-## LLaVA-UHD v1
-For using **LLaVA-UHD v1**, You can follow the original project instruction and code of **LLaVA-UHD v1** in branch `LLaVA-UHD-v1`, or just set the following hyper paramerters in training script to change training mode to **LLaVA-UHD v1**.
+Evaluation script is in VLMEvalkit, you need to add the corresponding files to the official VLMEvalkit project for testing.
 
-```bash
---mm_projector_type adapt_spatial_resampler_v1
---feature_mode uhd_v1
-```
+For details of data organization, please refer to [here](https://github.com/open-compass/VLMEvalKit) for help. 
+We provide the same script to complete the testing.
+
+
+
+#### Training and Fine-tuning
+
+1. Download the flashattention wheel:[flash_attn-2.7.0](https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.0.post1/flash_attn-2.7.0.post1+cu12torch2.1cxx11abiFALSE-cp310-cp310-linux_x86_64.whl)
+
+2. Download the checkpoints of [ViT-UHD](https://huggingface.co/ZzzHelloWorld/moonvit-so-400m-4-18-se-hirope2d-p10) and checkpoints of [Qwen2-7B](https://huggingface.co/Qwen/Qwen2-7B-Instruct).
+
+
+3. Run setup script using the following code:
+    ```bash
+    conda create -n LLaVA-UHD-v3 python=3.10
+    conda activate LLaVA-UHD-v3
+    bash setup_train_env.sh
+    ```
+
+4. Please refer to train.sh for pretraining script and fine-tuning script (we comment in the file), and prepare training data as the [llava data format](https://huggingface.co/datasets/YipengZhang/LLaVA-UHD-v2-SFT-Data).
+
+    ```bash
+    sh train.sh
+    ```
 
 
 ## Citation
-If you find LLaVA-UHD v2 useful for your research and applications, please cite using this BibTeX:
+
+If you find LLaVA-UHD-v3 useful for your research and applications, please cite using this BibTeX:
 ```bibtex
 @inproceedings{guo2024llava-uhd,
   title={{LLaVA-UHD}: an LMM Perceiving Any Aspect Ratio and High-Resolution Images},
@@ -137,6 +182,14 @@ If you find LLaVA-UHD v2 useful for your research and applications, please cite 
   author={Yipeng Zhang and Yifan Liu and Zonghao Guo and Yidan Zhang and Xuesong Yang and Chi Chen and Jun Song and Bo Zheng and Yuan Yao and Zhiyuan Liu and Tat-Seng Chua and Maosong Sun},
   journal={arXiv preprint arXiv:2412.13871},
   year={2024}
+}
+@inproceedings{anonymous2025llavauhd,
+  title={{LL}a{VA}-{UHD} v3: Progressive Visual Compression for Efficient Naive-Resolution Encoding in {MLLM}s},
+  author={Anonymous},
+  booktitle={Submitted to The Fourteenth International Conference on Learning Representations},
+  year={2025},
+  url={https://openreview.net/forum?id=T4pK6ByRit},
+  note={under review}
 }
 ```
 

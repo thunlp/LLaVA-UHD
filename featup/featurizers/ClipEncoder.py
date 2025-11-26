@@ -16,7 +16,7 @@ class CLIPVisionTower(nn.Module):
         self.vision_tower_name = 'openai/clip-vit-large-patch14-336'
         self.select_layer = -2
         self.select_feature = 'patch'
-        self.local_ckpt_path = 'openai/clip-vit-large-patch14-336'
+        self.local_ckpt_path = '/mnt/data/user/tc_agi/zyp/featup/models/huggingface/hub/models--openai--clip-vit-large-patch14-336/'
         
         # self.vision_tower_name = vision_tower
         # self.select_layer = args.mm_vision_select_layer

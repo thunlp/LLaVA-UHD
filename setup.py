@@ -2,9 +2,9 @@ from setuptools import setup, find_packages
 from torch.utils.cpp_extension import BuildExtension, CUDAExtension, CppExtension
 
 setup(
-    name="llava-uhd",
-    version="2",
-    description="https://github.com/thunlp/LLaVA-UHD",
+    name="llava",
+    version="1.7.0.dev0",
+    description="LLaVA OneVision: The Next Generation of LLaVA with Better Image and Video Understanding Capabilities",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     python_requires=">=3.8",
@@ -12,9 +12,10 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
     ],
-    url="https://github.com/thunlp/LLaVA-UHD",
+    url="https://llava-vl.github.io",
     project_urls={
-        "Bug Tracker": "https://github.com/thunlp/LLaVA-UHD",
+        "Homepage": "https://llava-vl.github.io",
+        "Bug Tracker": "https://github.com/haotian-liu/LLaVA/issues",
     },
     packages=find_packages(
         include=["llava*", "trl*"],
@@ -36,22 +37,22 @@ setup(
     ),
 
     install_requires=[
-        "torch",
-        "numpy",
+        "torch==2.1.2",
+        "numpy<2.0",
     ],
 
-    ext_modules=[
-        CUDAExtension(
-            'adaptive_conv_cuda_impl',
-            [
-                'featup/adaptive_conv_cuda/adaptive_conv_cuda.cpp',
-                'featup/adaptive_conv_cuda/adaptive_conv_kernel.cu',
-            ]),
-        CppExtension(
-            'adaptive_conv_cpp_impl',
-            ['featup/adaptive_conv_cuda/adaptive_conv.cpp'],
-            undef_macros=["NDEBUG"]),
-    ],
+    # ext_modules=[
+    #     CUDAExtension(
+    #         'adaptive_conv_cuda_impl',
+    #         [
+    #             'featup/adaptive_conv_cuda/adaptive_conv_cuda.cpp',
+    #             'featup/adaptive_conv_cuda/adaptive_conv_kernel.cu',
+    #         ]),
+    #     CppExtension(
+    #         'adaptive_conv_cpp_impl',
+    #         ['featup/adaptive_conv_cuda/adaptive_conv.cpp'],
+    #         undef_macros=["NDEBUG"]),
+    # ],
     cmdclass={
         'build_ext': BuildExtension
     },
@@ -66,21 +67,21 @@ setup(
         "train": [
             "llava[standalone]",
             "pynvml==11.5.0",
-            "numpy",
+            "numpy<2.0",
             "open_clip_torch",
             "fastapi",
             "markdown2[all]",
             "requests",
             "sentencepiece",
             "torch==2.1.2",
-            "torchvision==0.16.2",
+            "torchvision",
             "uvicorn",
             "wandb==0.18.7",
             "deepspeed==0.14.4",
             "peft==0.4.0",
             "accelerate==0.29.3",
-            "tokenizers==0.19",
-            "transformers==4.40.1",
+            "tokenizers<0.22",
+            "transformers==4.51.0",
             "bitsandbytes",
             "scikit-learn==1.2.2",
             "sentencepiece~=0.1.99",

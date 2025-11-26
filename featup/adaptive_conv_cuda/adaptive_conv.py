@@ -1,8 +1,8 @@
 from torch.autograd import Function
 import torch
 
-import adaptive_conv_cuda_impl as cuda_impl
-import adaptive_conv_cpp_impl as cpp_impl
+# import adaptive_conv_cuda_impl as cuda_impl
+# import adaptive_conv_cpp_impl as cpp_impl
 
 torch.manual_seed(42)
 

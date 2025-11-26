@@ -13,9 +13,10 @@ class Phi3Vision(BaseModel):
     def __init__(self, model_path='microsoft/Phi-3-vision-128k-instruct', **kwargs):
         try:
             from transformers import AutoProcessor, AutoModelForCausalLM
-        except:
-            warnings.warn('Please install the latest version transformers.')
-            sys.exit(-1)
+        except Exception as e:
+            logging.critical('Please install the latest version transformers.')
+            raise e
+
         model = AutoModelForCausalLM.from_pretrained(
             model_path, device_map='cuda', trust_remote_code=True, torch_dtype='auto').eval()
         processor = AutoProcessor.from_pretrained(model_path, trust_remote_code=True)
@@ -33,7 +34,7 @@ class Phi3Vision(BaseModel):
         inputs = self.processor(prompt, [image], return_tensors='pt').to('cuda')
 
         generation_args = {
-            'max_new_tokens': 500,
+            'max_new_tokens': 2048,
             'temperature': 0.0,
             'do_sample': False,
         }
@@ -81,7 +82,7 @@ class Phi3Vision(BaseModel):
         inputs = self.processor(prompt, image_list, return_tensors='pt').to('cuda')
 
         generation_args = {
-            'max_new_tokens': 500,
+            'max_new_tokens': 2048,
             'temperature': 0.0,
             'do_sample': False,
         }
@@ -104,14 +105,15 @@ class Phi3Vision(BaseModel):
 class Phi3_5Vision(BaseModel):
 
     INSTALL_REQ = False
-    INTERLEAVE = False
+    INTERLEAVE = True
 
     def __init__(self, model_path='microsoft/Phi-3.5-vision-instruct', **kwargs):
         try:
             from transformers import AutoProcessor, AutoModelForCausalLM
-        except:
-            warnings.warn('Please install the latest version transformers.')
-            sys.exit(-1)
+        except Exception as e:
+            logging.critical('Please install the latest version transformers.')
+            raise e
+
         model = AutoModelForCausalLM.from_pretrained(
             model_path, device_map='cuda', trust_remote_code=True, torch_dtype='auto',
             _attn_implementation='flash_attention_2').eval()
@@ -138,7 +140,7 @@ class Phi3_5Vision(BaseModel):
         inputs = self.processor(prompt, images, return_tensors='pt').to('cuda')
 
         generation_args = {
-            'max_new_tokens': 1000,
+            'max_new_tokens': 2048,
             'temperature': 0.0,
             'do_sample': False,
         }

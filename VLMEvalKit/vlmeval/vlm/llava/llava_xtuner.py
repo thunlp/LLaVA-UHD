@@ -8,12 +8,9 @@ import pandas as pd
 import torch
 from huggingface_hub import snapshot_download
 from PIL import Image
-from transformers import (AutoModel, AutoModelForCausalLM, AutoTokenizer,
-                          CLIPImageProcessor, CLIPVisionModel,
-                          GenerationConfig, StoppingCriteriaList)
 
 from ..base import BaseModel
-from ...smp import cn_string, get_cache_path
+from ...smp import *
 from ...dataset import DATASET_TYPE
 
 
@@ -25,7 +22,7 @@ class LLaVA_XTuner(BaseModel):
     def __init__(self,
                  llava_path,
                  llm_path=None,
-                 visual_encoder_path='/home/jeeves/pretrained_models/clip-vit-large-patch14-336',
+                 visual_encoder_path='openai/clip-vit-large-patch14-336',
                  visual_select_layer=-2,
                  prompt_template=None,
                  stop_words=[],
@@ -33,11 +30,13 @@ class LLaVA_XTuner(BaseModel):
         try:
             from peft import PeftModel
             from xtuner.utils import PROMPT_TEMPLATE, StopWordStoppingCriteria
-        except Exception:
-            warnings.warn(
+        except Exception as err:
+            logging.critical(
                 'Please install xtuner with `pip install -U xtuner` before '
                 'using LLaVA_XTuner')
-            sys.exit(-1)
+            raise err
+
+        from transformers import AutoModel, AutoModelForCausalLM, AutoTokenizer, StoppingCriteriaList  # noqa
 
         if not osp.isdir(llava_path):
             cache_path = get_cache_path(llava_path)
@@ -74,6 +73,8 @@ class LLaVA_XTuner(BaseModel):
         else:
             assert visual_encoder_path is not None, (
                 'Please specify the `visual_encoder_path`!')
+
+        from transformers import CLIPImageProcessor, CLIPVisionModel
         visual_encoder = CLIPVisionModel.from_pretrained(
             visual_encoder_path, torch_dtype=torch_dtype, device_map='cpu')
         image_processor = CLIPImageProcessor.from_pretrained(
@@ -98,7 +99,6 @@ class LLaVA_XTuner(BaseModel):
 
         # build projector
         projector_path = osp.join(llava_path, 'projector')
-        print(projector_path)
         projector = AutoModel.from_pretrained(projector_path,
                                               trust_remote_code=True,
                                               torch_dtype=torch_dtype,
@@ -139,6 +139,7 @@ class LLaVA_XTuner(BaseModel):
                 StopWordStoppingCriteria(self.tokenizer, word))
 
     def build_gen_config(self, dataset):
+        from transformers import GenerationConfig
         gen_kwargs = dict(max_new_tokens=512,
                           do_sample=True,
                           temperature=1,

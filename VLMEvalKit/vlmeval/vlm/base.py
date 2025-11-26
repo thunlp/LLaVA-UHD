@@ -1,5 +1,5 @@
 from ..smp import *
-from ..dataset import img_root_map
+from ..dataset import img_root_map, DATASET_TYPE
 from abc import abstractmethod
 
 
@@ -70,6 +70,7 @@ class BaseModel:
         Returns:
             list(dict): The preprocessed input messages. Will return None if failed to preprocess the input.
         """
+
         if self.check_content(inputs) == 'str':
             return [dict(type='text', value=inputs)]
         elif self.check_content(inputs) == 'dict':
@@ -125,7 +126,8 @@ class BaseModel:
         while len(messages):
             try:
                 return self.chat_inner(messages, dataset=dataset)
-            except:
+            except Exception as e:
+                logging.info(f'{type(e)}: {e}')
                 messages = messages[1:]
                 while len(messages) and messages[0]['role'] != 'user':
                     messages = messages[1:]
@@ -162,6 +164,58 @@ class BaseModel:
                 video = [x['value'] for x in message if x['type'] == 'video'][0]
             return prompt, video
         else:
-            import sys
-            warnings.warn('Model does not support video input.')
-            sys.exit(-1)
+            logging.critical('Model does not support video input.')
+            raise NotImplementedError
+
+    def message_to_promptvideo_withrole(self, message, dataset=None):
+        if self.VIDEO_LLM:
+            system, user, assistant, video_list = '', '', '', []
+            for msg in message:
+                if msg['type'] == 'text':
+                    if 'role' in msg and msg['role'] == 'system':
+                        system += msg['value']
+                    elif 'role' in msg and msg['role'] == 'assistant':
+                        assistant += msg['value']
+                    else:
+                        user += msg['value']
+                elif msg['type'] == 'video':
+                    video_list.append(msg['value'])
+            question = {
+                'system': system,
+                'user': user,
+                'assistant': assistant
+            }
+            if assistant == '':
+                if listinstr(['MCQ'], DATASET_TYPE(dataset)):
+                    question['assistant'] = 'Best Option: ('
+                else:
+                    del question['assistant']
+            if len(video_list) > 1:
+                print('VLMEvalKit only support single video as input, take first video as input')
+            video = video_list[0]
+            return question, video
+        else:
+            logging.critical('Model does not support video input.')
+            raise NotImplementedError
+
+    def message_to_lmdeploy(self, messages, system_prompt=None):
+        from lmdeploy.vl.constants import IMAGE_TOKEN
+        from PIL import Image
+        prompt, image_path = '', []
+        for msg in messages:
+            if msg['type'] == 'text':
+                prompt += msg['value']
+            elif msg['type'] == 'image':
+                prompt += IMAGE_TOKEN
+                image_path.append(msg['value'])
+        content = [{'type': 'text', 'text': prompt}]
+        for image in image_path:
+            img = Image.open(image).convert('RGB')
+            b64 = encode_image_to_base64(img)
+            img_struct = dict(url=f'data:image/jpeg;base64,{b64}')
+            content.append(dict(type='image_url', image_url=img_struct))
+        ret = []
+        if system_prompt is not None:
+            ret.append(dict(role='system', content=system_prompt))
+        ret.append(dict(role='user', content=content))
+        return [ret]

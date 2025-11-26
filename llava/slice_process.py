@@ -51,21 +51,41 @@ def get_refine_size(
     return refine_size
     
 def ensure_divide(length, patch_size):
-    # return max(round(length / patch_size) * patch_size, patch_size)
     return max(math.floor(length / patch_size) * patch_size, patch_size)
 
-def find_best_resize(original_size, scale_resolution, patch_size, allow_upscale=False):
+def find_best_resize(original_size, scale_resolution, patch_size, allow_upscale=False, any_res=False, upscale_ratio=1.4):
     width, height = original_size
-    if (width * height > scale_resolution * scale_resolution) or allow_upscale:
-        r = width / height # width=672 height=448 r= 1.5
-        height = int(scale_resolution / math.sqrt(r)) # scale_resolution=336 / r**0.5  274.3428511917
-        width = int(height * r) # 411.5142767876
+    max_edge = 5120
+    min_resolution = 512   
+    if any_res:
+        ### resize original_size ###
+        if allow_upscale:
+            width *= upscale_ratio
+            height *= upscale_ratio
+        r = width / height
+        if (width * height > scale_resolution * scale_resolution):
+            height = int(scale_resolution / math.sqrt(r))
+            width = int(height * r)
+        if (width * height < min_resolution * min_resolution):
+            height = int(min_resolution / math.sqrt(r))
+            width = int(height * r)
+        if max(width, height) > max_edge:
+            scale = max_edge / max(width, height)
+            width = int(width * scale)
+            height = int(height * scale)
+    else:
+        if (width * height > scale_resolution * scale_resolution) or allow_upscale:
+            r = width / height # width=672 height=448 r= 1.5
+            height = int(scale_resolution / math.sqrt(r)) # scale_resolution=336 / r**0.5  274.3428511917
+            width = int(height * r) # 411.5142767876
     best_width = ensure_divide(width, patch_size)
     best_height = ensure_divide(height, patch_size)
+    best_width = min(best_width, max_edge)
+    best_height = min(best_height, max_edge)
     return (best_width, best_height)
 
 def slice_image_minicpm(
-    image, max_slice_nums=9, scale_resolution=448, patch_size=14, never_split=False
+    image, max_slice_nums=9, scale_resolution=448, patch_size=14, never_split=False, any_res=False, allow_upscale=True, upscale_ratio=1.4
 ):
     original_size = image.size
     original_width, original_height = original_size
@@ -80,7 +100,7 @@ def slice_image_minicpm(
     if multiple <= 1 or never_split:
         # dont need to slice, upsample
         best_size = find_best_resize(
-            original_size, scale_resolution, patch_size, allow_upscale=True
+            original_size, scale_resolution, patch_size, allow_upscale=allow_upscale, any_res=any_res, upscale_ratio=upscale_ratio
         )
         source_image = image.resize(best_size, Image.Resampling.BICUBIC)
     else:
@@ -91,7 +111,7 @@ def slice_image_minicpm(
             candidate_split_grids_nums.append(i)
 
         # source image, down-sampling and ensure divided by patch_size
-        best_resize = find_best_resize(original_size, scale_resolution, patch_size)
+        best_resize = find_best_resize(original_size, scale_resolution, patch_size, any_res=any_res, upscale_ratio=upscale_ratio)
         source_image = image.copy().resize(best_resize, Image.Resampling.BICUBIC)
         candidate_grids = []
 
@@ -157,18 +177,6 @@ def split_image(image, scale=672, grid=(2, 2)):
 
 
 def generate_subimage_coordinates(H, W, h, w, num_windows):
-    """
-    生成子图的左上角和右下角坐标，并返回一个形状为 (n, 4) 的 PyTorch tensor。
-
-    参数:
-    H (int): 原始图像的高度
-    W (int): 原始图像的宽度
-    h (int): 子图的高度
-    w (int): 子图的宽度
-
-    返回:
-    torch.Tensor: 形状为 (n, 4) 的张量，包含所有子图的左上角和右下角坐标
-    """
     # assert H % h == 0 and W % w == 0, "H/h and W/w must be an integer"
     
     rows = int(round(H / h))

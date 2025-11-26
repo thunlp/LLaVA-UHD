@@ -24,13 +24,8 @@ from transformers import AutoConfig, AutoModelForCausalLM, LlamaConfig, LlamaMod
 from transformers.modeling_outputs import CausalLMOutputWithPast
 from transformers.generation.utils import GenerateOutput
 
-# from ...constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from llava.model.llava_arch import LlavaMetaModel, LlavaMetaForCausalLM
 from transformers import Qwen2Config, Qwen2Model, Qwen2ForCausalLM
-
-# from .qwen.modeling_qwen import QWenLMHeadModel, QWenModel
-# from .qwen.configuration_qwen import QWenConfig
-
 
 class LlavaQwenConfig(Qwen2Config):
     model_type = "llava_qwen"
@@ -103,7 +98,7 @@ class LlavaQwenForCausalLM(Qwen2ForCausalLM, LlavaMetaForCausalLM):
             return logits, labels
 
         else:
-            return super().forward(
+            output = super().forward(
                 input_ids=input_ids,
                 attention_mask=attention_mask,
                 position_ids=position_ids,
@@ -115,6 +110,7 @@ class LlavaQwenForCausalLM(Qwen2ForCausalLM, LlavaMetaForCausalLM):
                 output_hidden_states=output_hidden_states,
                 return_dict=return_dict,
             )
+            return output
 
     @torch.no_grad()
     def generate(

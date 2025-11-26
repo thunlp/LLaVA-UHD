@@ -1,0 +1,32 @@
+# Environment Args
+output_root: '/home/jeeves/LowResCV'
+pytorch_data_dir: '/home/jeeves/datasets'
+submitting_to_aml: false
+
+# Dataset args
+task: "seg"
+res: 336 #224 or 336
+train_dataset: "cocostuff"
+val_dataset: "coco_validation500"
+dim: 1024 #384 or 1024
+
+# Model Args
+model_type: "clip-large" #vit or clip-large
+activation_type: "token"
+is_norm: True
+
+# Training args
+batch_size: 128
+epochs: 10  # every epoch costs
+num_workers: 24
+num_gpus: 8
+lr: 5e-3 #default: 5e-3
+dropout: .5
+wd: 0.0
+
+# No need to change
+hydra:
+  run:
+    dir: "."
+  output_subdir: ~
+

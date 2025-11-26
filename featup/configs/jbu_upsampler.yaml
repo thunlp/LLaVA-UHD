@@ -1,0 +1,45 @@
+# Environment Args
+output_root: '/home/jeeves/LowResCV'
+pytorch_data_dir: '/home/jeeves/datasets'
+submitting_to_aml: false
+
+# Dataset args
+train_dataset: "cocostuff"
+val_dataset: "coco_validation50"
+res: 336 #224 or 336
+
+# Model Args
+model_type: "clip-large" #vit or clip-large
+activation_type: "token"
+is_norm: True
+is_high_res: False
+dim: 1024 #384 or 1024
+linear_probes_chkpt_dir: '/home/jeeves/probes/clip-large-True-token-0.005-10-128/clip-large-True-token-0.005-10-128_366.ckpt'
+
+# Upsampling args
+outlier_detection: True
+upsampler_type: "jbu_4x_stack"    #jbu_4x_stack
+downsampler_type: "attention"
+max_pad: 30  #paper 30
+max_zoom: 2
+n_jitters: 2  #paper 2
+random_projection: 30
+crf_weight: 0.001
+filter_ent_weight: 0.0
+tv_weight: 0.0
+
+implicit_sup_weight: 1.0
+
+# Training args
+batch_size: 2
+epochs: 5
+num_gpus: 1
+num_workers: 24
+lr: 1e-3
+
+# No need to change
+hydra:
+  run:
+    dir: "."
+  output_subdir: ~
+

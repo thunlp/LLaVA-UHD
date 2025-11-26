@@ -11,6 +11,7 @@ APIBASES = {
 }
 
 
+
 def GPT_context_window(model):
     length_map = {
         'gpt-4': 8192,
@@ -41,12 +42,12 @@ class OpenAIWrapper(BaseAPI):
                  retry: int = 5,
                  wait: int = 5,
                  key: str = None,
-                 verbose: bool = True,
+                 verbose: bool = False,
                  system_prompt: str = None,
                  temperature: float = 0,
                  timeout: int = 60,
-                 base_url: str = None,
-                 max_tokens: int = 1024,
+                 api_base: str = None,
+                 max_tokens: int = 2048,
                  img_size: int = 512,
                  img_detail: str = 'low',
                  use_azure: bool = False,
@@ -59,7 +60,7 @@ class OpenAIWrapper(BaseAPI):
         self.temperature = temperature
         self.use_azure = use_azure
 
-        if 'step-1v' in model:
+        if 'step' in model:
             env_key = os.environ.get('STEPAI_API_KEY', '')
             if key is None:
                 key = env_key
@@ -67,6 +68,28 @@ class OpenAIWrapper(BaseAPI):
             env_key = os.environ.get('YI_API_KEY', '')
             if key is None:
                 key = env_key
+        elif 'internvl2-pro' in model:
+            env_key = os.environ.get('InternVL2_PRO_KEY', '')
+            if key is None:
+                key = env_key
+        elif 'abab' in model:
+            env_key = os.environ.get('MiniMax_API_KEY', '')
+            if key is None:
+                key = env_key
+        elif 'moonshot' in model:
+            env_key = os.environ.get('MOONSHOT_API_KEY', '')
+            if key is None:
+                key = env_key
+        elif 'grok' in model:
+            env_key = os.environ.get('XAI_API_KEY', '')
+            if key is None:
+                key = env_key
+        elif 'gemini' in model and 'preview' in model:
+            # Will only handle preview models
+            env_key = os.environ.get('GOOGLE_API_KEY', '')
+            if key is None:
+                key = env_key
+            api_base = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
         else:
             if use_azure:
                 env_key = os.environ.get('AZURE_OPENAI_API_KEY', None)
@@ -92,11 +115,12 @@ class OpenAIWrapper(BaseAPI):
         assert img_detail in ['high', 'low']
         self.img_detail = img_detail
         self.timeout = timeout
+        self.o1_model = 'o1' in model or 'o3' in model
 
         super().__init__(wait=wait, retry=retry, system_prompt=system_prompt, verbose=verbose, **kwargs)
 
         if use_azure:
-            base_url_template = (
+            api_base_template = (
                 '{endpoint}openai/deployments/{deployment_name}/chat/completions?api-version={api_version}'
             )
             endpoint = os.getenv('AZURE_OPENAI_ENDPOINT', None)
@@ -106,30 +130,30 @@ class OpenAIWrapper(BaseAPI):
             api_version = os.getenv('OPENAI_API_VERSION', None)
             assert api_version is not None, 'Please set the environment variable OPENAI_API_VERSION. '
 
-            self.base_url = base_url_template.format(
+            self.api_base = api_base_template.format(
                 endpoint=os.getenv('AZURE_OPENAI_ENDPOINT'),
                 deployment_name=os.getenv('AZURE_OPENAI_DEPLOYMENT_NAME'),
                 api_version=os.getenv('OPENAI_API_VERSION')
             )
         else:
-            if base_url is None:
+            if api_base is None:
                 if 'OPENAI_API_BASE' in os.environ and os.environ['OPENAI_API_BASE'] != '':
                     self.logger.info('Environment variable OPENAI_API_BASE is set. Will use it as api_base. ')
-                    base_url = os.environ['OPENAI_API_BASE']
+                    api_base = os.environ['OPENAI_API_BASE']
                 else:
-                    base_url = 'OFFICIAL'
+                    api_base = 'OFFICIAL'
 
-            assert base_url is not None
+            assert api_base is not None
 
-            if base_url in APIBASES:
-                self.base_url = APIBASES[base_url]
-            elif base_url.startswith('http'):
-                self.base_url = base_url
+            if api_base in APIBASES:
+                self.api_base = APIBASES[api_base]
+            elif api_base.startswith('http'):
+                self.api_base = api_base
             else:
                 self.logger.error('Unknown API Base. ')
-                sys.exit(-1)
+                raise NotImplementedError
 
-        self.logger.info(f'Using API Base: {self.base_url}; API Key: {self.key}')
+        self.logger.info(f'Using API Base: {self.api_base}; API Key: {self.key}')
 
     # inputs can be a lvl-2 nested list: [content1, content2, content3, ...]
     # content can be a string or a list of image & text
@@ -182,7 +206,7 @@ class OpenAIWrapper(BaseAPI):
         if max_tokens <= 0:
             return 0, self.fail_msg + 'Input string longer than context window. ', 'Length Exceeded. '
 
-        client = OpenAI(api_key=self.key, base_url=self.base_url)
+        client = OpenAI(api_key=self.key, base_url=self.api_base)
 
         # 构建请求的消息和参数
         response = None
@@ -239,8 +263,13 @@ class OpenAIWrapper(BaseAPI):
         import tiktoken
         try:
             enc = tiktoken.encoding_for_model(self.model)
-        except:
-            enc = tiktoken.encoding_for_model('gpt-4')
+        except Exception as err:
+            if 'gpt' in self.model.lower():
+                if self.verbose:
+                    self.logger.warning(f'{type(err)}: {err}')
+                enc = tiktoken.encoding_for_model('gpt-4')
+            else:
+                return 0
         assert isinstance(inputs, list)
         tot = 0
         for item in inputs:

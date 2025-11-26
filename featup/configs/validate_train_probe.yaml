@@ -1,0 +1,42 @@
+# Environment Args
+output_root: '/home/jeeves/LowResCV'
+pytorch_data_dir: '/home/jeeves/datasets'
+submitting_to_aml: false
+
+# Dataset args
+task: "seg"
+res: 224
+dataset: "cocostuff"
+
+# Model Args
+model_type: "vit"
+activation_type: "token"
+dim: 384
+is_norm: True
+
+# Upsampling args
+outlier_detection: True
+upsampler_type: "jbu_stack"
+downsampler_type: "attention"
+max_pad: 20
+max_zoom: 2
+n_jitters: 5
+random_projection: 30
+crf_weight: 0.001
+filter_ent_weight: 0.0
+tv_weight: 0.0
+
+# Training args
+batch_size: 32
+epochs: 200
+num_workers: 1
+lr: 1e-3
+dropout: .5
+wd: 0.0
+
+# No need to change
+hydra:
+  run:
+    dir: "."
+  output_subdir: ~
+

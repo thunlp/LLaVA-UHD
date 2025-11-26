@@ -47,7 +47,7 @@ def localize_df(data, dname, nproc=32):
     else:
         img_paths = []
         for i in indices_str:
-            if len(image_map[i]) <= 64:
+            if len(image_map[i]) <= 64 and isinstance(image_map[i], str):
                 idx = image_map[i]
                 assert idx in image_map and len(image_map[idx]) > 64
                 img_paths.append(f'{idx}.jpg')
@@ -70,6 +70,20 @@ def LMUDataRoot():
         return os.environ['LMUData']
     home = osp.expanduser('~')
     root = osp.join(home, 'LMUData')
+    os.makedirs(root, exist_ok=True)
+    return root
+
+
+def HFCacheRoot():
+    cache_list = ['HUGGINGFACE_HUB_CACHE', 'HF_HOME']
+    for cache_name in cache_list:
+        if cache_name in os.environ and osp.exists(os.environ[cache_name]):
+            if os.environ[cache_name].split('/')[-1] == 'hub':
+                return os.environ[cache_name]
+            else:
+                return osp.join(os.environ[cache_name], 'hub')
+    home = osp.expanduser('~')
+    root = osp.join(home, '.cache', 'huggingface', 'hub')
     os.makedirs(root, exist_ok=True)
     return root
 
@@ -169,6 +183,13 @@ def load(f, fmt=None):
     def load_tsv(f):
         return pd.read_csv(f, sep='\t')
 
+    import validators
+    if validators.url(f):
+        tgt = osp.join(LMUDataRoot(), 'files', osp.basename(f))
+        if not osp.exists(tgt):
+            download_file(f, tgt)
+        f = tgt
+
     handlers = dict(pkl=load_pkl, json=load_json, jsonl=load_jsonl, xlsx=load_xlsx, csv=load_csv, tsv=load_tsv)
     if fmt is not None:
         return handlers[fmt](f)
@@ -193,14 +214,17 @@ def download_file(url, filename=None):
     try:
         with DownloadProgressBar(unit='B', unit_scale=True, miniters=1, desc=url.split('/')[-1]) as t:
             urllib.request.urlretrieve(url, filename=filename, reporthook=t.update_to)
-    except:
+    except Exception as e:
+        import logging
+        logging.warning(f'{type(e)}: {e}')
         # Handle Failed Downloads from huggingface.co
         if 'huggingface.co' in url:
             url_new = url.replace('huggingface.co', 'hf-mirror.com')
             try:
                 download_file(url_new, filename)
                 return filename
-            except:
+            except Exception as e:
+                logging.warning(f'{type(e)}: {e}')
                 raise Exception(f'Failed to download {url}')
         else:
             raise Exception(f'Failed to download {url}')
@@ -281,11 +305,29 @@ def parse_file(s):
     if osp.exists(s) and s != '.':
         assert osp.isfile(s)
         suffix = osp.splitext(s)[1].lower()
+        # 添加对webp的支持
+        if suffix == '.webp':
+            return ('image/webp', s)
         mime = mimetypes.types_map.get(suffix, 'unknown')
         return (mime, s)
+    elif s.startswith('data:image/'):
+        # To be compatible with OPENAI base64 format
+        content = s[11:]
+        mime = content.split(';')[0]
+        content = ';'.join(content.split(';')[1:])
+        dname = osp.join(LMUDataRoot(), 'files')
+        assert content.startswith('base64,')
+        b64 = content[7:]
+        os.makedirs(dname, exist_ok=True)
+        tgt = osp.join(dname, md5(b64) + '.png')
+        decode_base64_to_image_file(b64, tgt)
+        return parse_file(tgt)
     elif validators.url(s):
         suffix = osp.splitext(s)[1].lower()
-        if suffix in mimetypes.types_map:
+        # 添加对webp的支持
+        if suffix == '.webp':
+            mime = 'image/webp'
+        elif suffix in mimetypes.types_map:
             mime = mimetypes.types_map[suffix]
             dname = osp.join(LMUDataRoot(), 'files')
             os.makedirs(dname, exist_ok=True)
@@ -294,6 +336,7 @@ def parse_file(s):
             return (mime, tgt)
         else:
             return ('url', s)
+
     else:
         return (None, s)
 
@@ -313,3 +356,26 @@ def parquet_to_tsv(file_path):
     pth = '/'.join(file_path.split('/')[:-1])
     data_name = file_path.split('/')[-1].split('.')[0]
     data.to_csv(osp.join(pth, f'{data_name}.tsv'), sep='\t', index=False)
+
+
+def fetch_aux_files(eval_file):
+    file_root = osp.dirname(eval_file)
+    file_name = osp.basename(eval_file)
+
+    eval_id = osp.basename(file_root)
+    if eval_id[:3] == 'T20' and eval_id[9:11] == '_G':
+        model_name = osp.basename(osp.dirname(file_root))
+    else:
+        model_name = eval_id
+
+    dataset_name = osp.splitext(file_name)[0][len(model_name) + 1:]
+    from vlmeval.dataset import SUPPORTED_DATASETS
+    to_handle = []
+    for d in SUPPORTED_DATASETS:
+        if d.startswith(dataset_name) and d != dataset_name:
+            to_handle.append(d)
+    fs = ls(file_root, match=f'{model_name}_{dataset_name}')
+    if len(to_handle):
+        for d in to_handle:
+            fs = [x for x in fs if d not in x]
+    return fs

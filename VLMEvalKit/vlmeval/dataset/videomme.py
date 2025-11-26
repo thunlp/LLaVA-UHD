@@ -48,8 +48,8 @@ Respond with only the letter (A, B, C, or D) of the correct option.
 
     TYPE = 'Video-MCQ'
 
-    def __init__(self, dataset='Video-MME', use_subtitle=False):
-        super().__init__(dataset=dataset)
+    def __init__(self, dataset='Video-MME', use_subtitle=False, nframe=0, fps=-1):
+        super().__init__(dataset=dataset, nframe=nframe, fps=fps)
         self.use_subtitle = use_subtitle
         self.dataset_name = dataset
 
@@ -140,7 +140,11 @@ Respond with only the letter (A, B, C, or D) of the correct option.
 
                 data_file.to_csv(osp.join(pth, f'{dataset_name}.tsv'), sep='\t', index=False)
 
-            dataset_path = snapshot_download(repo_id=repo_id, repo_type='dataset')
+            if modelscope_flag_set():
+                from modelscope import dataset_snapshot_download
+                dataset_path = dataset_snapshot_download(dataset_id=repo_id)
+            else:
+                dataset_path = snapshot_download(repo_id=repo_id, repo_type='dataset')
             unzip_hf_zip(dataset_path)
             generate_tsv(dataset_path)
 
@@ -148,40 +152,44 @@ Respond with only the letter (A, B, C, or D) of the correct option.
 
         return dict(data_file=data_file, root=dataset_path)
 
-    def save_video_frames(self, video, num_frames=8):
+    def save_video_frames(self, video, video_llm=False):
 
         vid_path = osp.join(self.data_root, 'video', video + '.mp4')
+        import decord
         vid = decord.VideoReader(vid_path)
-        step_size = len(vid) / (num_frames + 1)
-        indices = [int(i * step_size) for i in range(1, num_frames + 1)]
-
         video_info = {
             'fps': vid.get_avg_fps(),
             'n_frames': len(vid),
         }
+        if self.nframe > 0 and self.fps < 0:
+            step_size = len(vid) / (self.nframe + 1)
+            indices = [int(i * step_size) for i in range(1, self.nframe + 1)]
+            frame_paths = self.frame_paths(video)
+        elif self.fps > 0:
+            # not constrained by num_frames, get frames by fps
+            total_duration = video_info['n_frames'] / video_info['fps']
+            required_frames = int(total_duration * self.fps)
+            step_size = video_info['fps'] / self.fps
+            indices = [int(i * step_size) for i in range(required_frames)]
+            frame_paths = self.frame_paths_fps(video, len(indices))
 
-        frame_paths = self.frame_paths(video, num_frames)
         flag = np.all([osp.exists(p) for p in frame_paths])
 
         if not flag:
             images = [vid[i].asnumpy() for i in indices]
             images = [Image.fromarray(arr) for arr in images]
             for im, pth in zip(images, frame_paths):
-                if not osp.exists(pth):
+                if not osp.exists(pth) and not video_llm:
                     im.save(pth)
 
         return frame_paths, indices, video_info
 
-    def save_video_into_images(self, line, num_frames=8):
-        frame_paths, indices, video_info = self.save_video_frames(line['video'], num_frames)
-        return frame_paths
-
-    def build_prompt(self, line, num_frames, video_llm):
+    def build_prompt(self, line, video_llm):
         if isinstance(line, int):
             assert line < len(self)
             line = self.data.iloc[line]
 
-        frames, indices, video_info = self.save_video_frames(line['video'], num_frames)
+        frames, indices, video_info = self.save_video_frames(line['video'], video_llm)
 
         if self.use_subtitle and os.path.exists(osp.join(self.data_root, line['subtitle_path'])):
             import pysubs2

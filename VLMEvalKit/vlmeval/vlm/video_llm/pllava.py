@@ -5,8 +5,9 @@ import numpy as np
 import sys
 from PIL import Image
 import torchvision
+import logging
 from ..base import BaseModel
-from ...smp import isimg, listinstr, get_rank_and_world_size
+from ...smp import isimg, listinstr
 from ...dataset import DATASET_TYPE
 from huggingface_hub import snapshot_download
 
@@ -21,14 +22,13 @@ class PLLaVA(BaseModel):
         sys.path.append(dir_root)
         try:
             from tasks.eval.model_utils import load_pllava
-        except:
-            warnings.warn(
+        except Exception as err:
+            logging.critical(
                 'Please first install requirements and set the root path to use PLLaVA. \
                 Follow the instructions at https://github.com/magic-research/PLLaVA.'
             )
-            sys.exit(-1)
+            raise err
 
-        rank, world_size = get_rank_and_world_size()
         self.nframe = 16
         self.use_lora = True
         self.lora_alpha = 4
@@ -43,7 +43,7 @@ class PLLaVA(BaseModel):
         )
 
         #  position embedding
-        self.model = self.model.to(torch.device(rank))
+        self.model = self.model.to('cuda')
         self.model = self.model.eval()
 
     def load_video(self, video_path, num_segments=8, resolution=336):
@@ -75,12 +75,12 @@ class PLLaVA(BaseModel):
         img_list = self.load_video(video, num_segments=self.nframe, resolution=self.RESOLUTION)
 
         if self.model_path == 'ermu2001/pllava-34b':  # using slightly different conversation mode for 34b model
-            if dataset in ['Video-MME', 'MVBench', 'MVBench_MP4']:  # MCQ dataset
+            if listinstr(['Video-MCQ'], DATASET_TYPE(dataset)):  # MCQ dataset
                 conv_mode = 'eval_mvbench_llavanext'
             else:  # VQA dataset
                 conv_mode = 'eval_videoqa_llavanext'
         else:
-            if dataset in ['Video-MME', 'MVBench', 'MVBench_MP4']:  # MCQ dataset
+            if listinstr(['Video-MCQ'], DATASET_TYPE(dataset)):  # MCQ dataset
                 conv_mode = 'eval_mvbench'
             else:  # VQA dataset
                 conv_mode = 'eval_videoqabench'

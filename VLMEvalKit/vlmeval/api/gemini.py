@@ -16,18 +16,19 @@ class GeminiWrapper(BaseAPI):
                  verbose: bool = True,
                  temperature: float = 0.0,
                  system_prompt: str = None,
-                 max_tokens: int = 1024,
+                 max_tokens: int = 2048,
                  proxy: str = None,
                  backend='genai',
                  project_id='vlmeval',
+                 thinking_budget: int = None,  # range from 0 to 24576
+                 # see https://ai.google.dev/gemini-api/docs/thinking
                  **kwargs):
-
-        assert model in ['gemini-1.0-pro', 'gemini-1.5-pro', 'gemini-1.5-flash']
 
         self.model = model
         self.fail_msg = 'Failed to obtain answer via API. '
         self.max_tokens = max_tokens
         self.temperature = temperature
+        self.thinking_budget = thinking_budget
         if key is None:
             key = os.environ.get('GOOGLE_API_KEY', None)
         # Try to load backend from environment variable
@@ -39,6 +40,15 @@ class GeminiWrapper(BaseAPI):
         if backend == 'genai':
             # We have not evaluated Gemini-1.5 w. GenAI backend
             assert key is not None  # Vertex does not require API Key
+            try:
+                from google import genai
+            except ImportError as e:
+                raise ImportError(
+                    "Could not import 'google.genai'. Please install it with:\n"
+                    "    pip install --upgrade google-genai"
+                ) from e
+            self.genai = genai
+            self.client = genai.Client(api_key=key)
 
         self.backend = backend
         self.project_id = project_id
@@ -69,28 +79,37 @@ class GeminiWrapper(BaseAPI):
 
     def generate_inner(self, inputs, **kwargs) -> str:
         if self.backend == 'genai':
-            import google.generativeai as genai
+            from google.genai import types
             assert isinstance(inputs, list)
-            pure_text = np.all([x['type'] == 'text' for x in inputs])
-            genai.configure(api_key=self.api_key)
-
-            if pure_text and self.model == 'gemini-1.0-pro':
-                model = genai.GenerativeModel('gemini-1.0-pro')
-            else:
-                assert self.model in ['gemini-1.5-pro', 'gemini-1.5-flash']
-                model = genai.GenerativeModel(self.model)
-
+            model = self.model
             messages = self.build_msgs_genai(inputs)
-            gen_config = dict(max_output_tokens=self.max_tokens, temperature=self.temperature)
-            gen_config.update(kwargs)
+
+            # Configure generation parameters
+            config_args = {
+                "temperature": self.temperature,
+                "max_output_tokens": self.max_tokens
+            }
+
+            # If thinking_budget is specified, add thinking_config
+            # By default, Gemini 2.5 Pro will automatically select
+            # a thinking budget not exceeding 8192 if not specified.
+            if self.thinking_budget is not None:
+                config_args["thinking_config"] = types.ThinkingConfig(
+                    thinking_budget=self.thinking_budget
+                )
+            config_args.update(kwargs)
+
             try:
-                answer = model.generate_content(
-                    messages,
-                    generation_config=genai.types.GenerationConfig(**gen_config)).text
+                resp = self.client.models.generate_content(
+                    model=model,
+                    contents=messages,
+                    config=types.GenerateContentConfig(**config_args)
+                )
+                answer = resp.text
                 return 0, answer, 'Succeeded! '
             except Exception as err:
                 if self.verbose:
-                    self.logger.error(err)
+                    self.logger.error(f'{type(err)}: {err}')
                     self.logger.error(f'The input messages are {inputs}.')
 
                 return -1, '', ''
@@ -107,13 +126,13 @@ class GeminiWrapper(BaseAPI):
                 return 0, answer, 'Succeeded! '
             except Exception as err:
                 if self.verbose:
-                    self.logger.error(err)
+                    self.logger.error(f'{type(err)}: {err}')
                     self.logger.error(f'The input messages are {inputs}.')
 
                 return -1, '', ''
 
 
-class GeminiProVision(GeminiWrapper):
+class Gemini(GeminiWrapper):
 
     def generate(self, message, dataset=None):
-        return super(GeminiProVision, self).generate(message)
+        return super(Gemini, self).generate(message)

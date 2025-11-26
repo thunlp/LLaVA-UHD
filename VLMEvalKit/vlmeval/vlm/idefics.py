@@ -2,9 +2,8 @@ import torch
 import os.path as osp
 import warnings
 from .base import BaseModel
-from ..smp import splitlen
+from ..smp import splitlen, listinstr
 from PIL import Image
-from transformers import AutoProcessor, AutoModelForVision2Seq
 from transformers.image_utils import load_image
 
 
@@ -17,7 +16,7 @@ class IDEFICS(BaseModel):
         from transformers import IdeficsForVisionText2Text, AutoProcessor
 
         self.model = IdeficsForVisionText2Text.from_pretrained(
-            model_path, torch_dtype=torch.bfloat16, device_map='auto'
+            model_path, torch_dtype=torch.bfloat16, device_map="auto"
         )
         self.processor = AutoProcessor.from_pretrained(model_path)
         kwargs_default = {'max_new_tokens': 512}
@@ -62,6 +61,7 @@ class IDEFICS2(BaseModel):
     INTERLEAVE = True
 
     def __init__(self, model_path='HuggingFaceM4/idefics2-8b', **kwargs):
+        from transformers import AutoProcessor, AutoModelForVision2Seq
         assert model_path is not None
         self.model_path = model_path
         if 'Idefics3' in self.model_path.lower():
@@ -71,9 +71,9 @@ class IDEFICS2(BaseModel):
         model = AutoModelForVision2Seq.from_pretrained(
             model_path,
             torch_dtype=torch.bfloat16,
-            _attn_implementation='flash_attention_2',
-            device_map='cpu')
-        self.model = model.to('cuda')
+            _attn_implementation="flash_attention_2",
+            device_map="auto")
+        self.model = model
 
         kwargs_default = {'max_new_tokens': 1024}
         kwargs_default.update(kwargs)
@@ -90,7 +90,16 @@ class IDEFICS2(BaseModel):
         inputs = {k: v.to(self.model.device) for k, v in inputs.items()}
         return inputs
 
-    def build_prompt_default(self, message, add_brief=False, add_yes_or_no=False):
+    def build_prompt_default(self, message, add_brief=False, add_yes_or_no=False, change_the_img_place=False):
+        if change_the_img_place:
+            new_message = []
+            for s in message:
+                if s['type'] == 'image':
+                    new_message.append(s)
+            for s in message:
+                if s['type'] == 'text':
+                    new_message.append(s)
+            message = new_message
         prompt, images = 'User:', []
         for msg in message:
             if msg['type'] == 'image':
@@ -284,6 +293,8 @@ class IDEFICS2(BaseModel):
             'ScienceQA_TEST',
         ]:
             formatted_messages, formatted_images = self.build_prompt_puremcq(message)
+        elif dataset is not None and listinstr(['MLVU','TempCompass','MVBench'], dataset):
+            formatted_messages, formatted_images = self.build_prompt_default(message, change_the_img_place=True)
         else:
             formatted_messages, formatted_images = self.build_prompt_default(message)
 

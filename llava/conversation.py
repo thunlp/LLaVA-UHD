@@ -392,7 +392,7 @@ conv_llava_llama_3 = Conversation(
     sep="<|eot_id|>",
     sep_style=SeparatorStyle.LLAMA_3,
     tokenizer_id="meta-llama/Meta-Llama-3-8B-Instruct",
-    tokenizer=safe_load_tokenizer("meta-llama/Meta-Llama-3-8B-Instruct"),
+    tokenizer=safe_load_tokenizer("/home/guozonghao/user/songhaolin/CKPT/Meta-Llama-3-8B-Instruct"),
     stop_token_ids=[128009],
 )
 
@@ -445,6 +445,16 @@ conv_qwen = Conversation(
 You are a helpful assistant.""",
     roles=("<|im_start|>user", "<|im_start|>assistant"),
     version="qwen",
+    messages=[],
+    offset=0,
+    sep_style=SeparatorStyle.CHATML,
+    sep="<|im_end|>",
+)
+
+conv_qwen3 = Conversation(
+    system="",
+    roles=("<|im_start|>user", "<|im_start|>assistant"),
+    version="qwen3",
     messages=[],
     offset=0,
     sep_style=SeparatorStyle.CHATML,
@@ -577,6 +587,7 @@ conv_templates = {
     "mpt": conv_mpt,
     "qwen_1_5": conv_qwen,
     "qwen_2": conv_qwen,
+    "qwen3": conv_qwen3,
     "gemma_instruct": conv_gemma_instruct,
 }
 

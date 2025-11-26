@@ -321,14 +321,6 @@ class JBU4xStack(torch.nn.Module):
         source_2 = self.upsample(source, guidance, self.up1).to(torch.bfloat16)
         source_4 = self.upsample(source_2, guidance, self.up2).to(torch.bfloat16)
         return self.fixup_proj(source_4) * 0.1 + source_4
-
-    def forward_stageloss(self, source, guidance):
-        source_2 = self.upsample(source, guidance, self.up1)
-        constant2 = source_2.clone()
-        constant2 = constant2.detach()
-        source_4 = self.upsample(constant2, guidance, self.up2)
-        source_4 = self.fixup_proj(source_4) * 0.1 + source_4
-        return source_2, source_4
     
     def forward_with_internal_features(self, source, guidance):
         source = source.to(torch.bfloat16)
@@ -371,6 +363,15 @@ class JBU8xStack(torch.nn.Module):
         source_4 = self.upsample(source_2, guidance, self.up2).to(torch.bfloat16)
         source_8 = self.upsample(source_4, guidance, self.up3).to(torch.bfloat16)
         return self.fixup_proj(source_8) * 0.1 + source_8
+    
+    def forward_with_internal_features(self, source, guidance):
+        source = source.to(torch.bfloat16)
+        guidance = guidance.to(torch.bfloat16)
+        source_2 = self.upsample(source, guidance, self.up1).to(torch.bfloat16)
+        source_4 = self.upsample(source_2, guidance, self.up2).to(torch.bfloat16)
+        source_8 = self.upsample(source_4, guidance, self.up3).to(torch.bfloat16)
+        final = self.fixup_proj(source_8) * 0.1 + source_8
+        return {'feat2x': source_2, 'feat4x': source_4, 'feat8x': final}
 
     def forward_stageloss(self, source, guidance):
         source = source.to(torch.bfloat16)

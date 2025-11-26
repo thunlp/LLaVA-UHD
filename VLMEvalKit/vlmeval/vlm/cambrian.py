@@ -21,15 +21,16 @@ class Cambrian(BaseModel):
             from cambrian.conversation import conv_templates, SeparatorStyle
             from cambrian.model.builder import load_pretrained_model
             from cambrian.mm_utils import tokenizer_image_token, process_images, get_model_name_from_path
-        except:
-            warnings.warn('Please install cambrian from https://github.com/cambrian-mllm/cambrian.')
+        except Exception as e:
+            logging.critical('Please install cambrian from https://github.com/cambrian-mllm/cambrian.')
+            raise e
 
         model_name = get_model_name_from_path(model_path)
         tokenizer, model, image_processor, context_len = load_pretrained_model(
             model_path,
             None,
             model_name,
-            device_map=None
+            device_map="cuda"
         )
 
         if '8b' in model_path:
@@ -46,7 +47,7 @@ class Cambrian(BaseModel):
 
         self.tokenizer = tokenizer
         self.image_processor = image_processor
-        self.model = model.to('cuda')
+        self.model = model
 
     def process(self, image, question):
         if self.model_config.mm_use_im_start_end:
@@ -76,7 +77,7 @@ class Cambrian(BaseModel):
                 do_sample=False,
                 temperature=0,
                 num_beams=1,
-                max_new_tokens=512,
+                max_new_tokens=2048,
                 use_cache=True
             )
         outputs = self.tokenizer.batch_decode(output_ids, skip_special_tokens=True)[0].strip()

@@ -1,9 +1,11 @@
 import sys
+from collections import deque
+from vlmeval.dataset import SUPPORTED_DATASETS
 from vlmeval.config import *
 from vlmeval.smp import *
 
 # Define valid modes
-MODES = ('dlist', 'mlist', 'missing', 'circular', 'localize', 'check', 'run', 'eval')
+MODES = ('dlist', 'mlist', 'missing', 'circular', 'localize', 'check', 'run', 'eval', 'merge_pkl', 'scan')
 
 CLI_HELP_MSG = \
     f"""
@@ -32,7 +34,10 @@ CLI_HELP_MSG = \
             vlmutil run l2 hf
         8. Evaluate data file:
             vlmutil eval [dataset_name] [prediction_file]
-
+        9. Merge pkl files:
+            vlmutil merge_pkl [pkl_dir] [world_size]
+        10. Scan evaluation results and detect api failure
+            vlmutil scan --model [model_list.txt or model_names] --data [dataset_names] --root [root_dir]
     GitHub: https://github.com/open-compass/VLMEvalKit
     """  # noqa: E501
 
@@ -50,12 +55,26 @@ dataset_levels = {
         ('SEEDBench_IMG', 'acc.csv'), ('COCO_VAL', 'score.json'), ('POPE', 'score.csv'),
         ('ScienceQA_VAL', 'acc.csv'), ('ScienceQA_TEST', 'acc.csv'), ('MMT-Bench_VAL', 'acc.csv'),
         ('SEEDBench2_Plus', 'acc.csv'), ('BLINK', 'acc.csv'), ('MTVQA_TEST', 'acc.json'),
-        ('Q-Bench1_VAL', 'acc.csv'), ('A-Bench_VAL', 'acc.csv')
+        ('Q-Bench1_VAL', 'acc.csv'), ('A-Bench_VAL', 'acc.csv'), ('R-Bench-Dis', 'acc.csv'),
     ],
     'l3': [
         ('OCRVQA_TESTCORE', 'acc.csv'), ('TextVQA_VAL', 'acc.csv'),
         ('ChartQA_TEST', 'acc.csv'), ('DocVQA_VAL', 'acc.csv'), ('InfoVQA_VAL', 'acc.csv'),
         ('SEEDBench2', 'acc.csv')
+    ],
+    'live': [
+        ('LiveMMBench_VQ_circular', 'acc.csv'), ('LiveMMBench_Spatial_circular', 'acc.csv'),
+        ('LiveMMBench_Reasoning_circular', 'acc.csv'), ('LiveMMBench_Infographic', 'acc.csv'),
+        ('LiveMMBench_Perception', 'acc.csv'), ('LiveMMBench_Creation', 'merged_score.json'),
+    ],
+    'math': [
+        ('MathVision', 'score.csv'), ('MathVerse_MINI_Vision_Only', 'score.csv'),
+        ('DynaMath', 'score.csv'), ('WeMath', 'score.csv'), ('LogicVista', 'score.csv'),
+        ('MathVista_MINI', 'gpt-4-turbo_score.csv'),
+    ],
+    'spatial': [
+        ('LEGO_circular', 'acc_all.csv'), ('BLINK_circular', 'acc_all.csv'), ('MMSIBench_circular', 'acc_all.csv'),
+        ('Spatial457', 'score.json'), ('3DSRBench', 'acc_all.csv')
     ]
 }
 
@@ -71,12 +90,13 @@ models = {
         'TransCore_M', 'emu2_chat', 'MiniCPM-V', 'MiniCPM-V-2', 'OmniLMM_12B',
         'cogvlm-grounding-generalist', 'cogvlm-chat', 'cogvlm2-llama3-chat-19B',
         'mPLUG-Owl3'
-    ] + list(xtuner_series) + list(yivl_series) + list(deepseekvl_series) + list(cambrian_series),
+    ] + list(xtuner_series) + list(yivl_series) + list(deepseekvl_series) + list(janus_series) + list(cambrian_series),
     '4.36.2': ['Moondream1'],
     '4.40.0': [
         'idefics2_8b', 'Bunny-llama3-8B', 'MiniCPM-Llama3-V-2_5', '360VL-70B', 'Phi-3-Vision',
     ] + list(wemm_series),
     '4.44.0': ['Moondream2'],
+    '4.45.0': ['Aria'],
     'latest': ['paligemma-3b-mix-448', 'MiniCPM-V-2_6', 'glm-4v-9b'] + [x for x in llava_series if 'next' in x]
     + list(chameleon_series) + list(ovis_series) + list(mantis_series),
     'api': list(api_models)
@@ -85,7 +105,7 @@ models = {
 # SKIP_MODELS will be skipped in report_missing and run APIs
 SKIP_MODELS = [
     'MGM_7B', 'GPT4V_HIGH', 'GPT4V', 'flamingov2', 'PandaGPT_13B',
-    'GeminiProVision', 'Step1V-0701', 'SenseChat-5-Vision',
+    'GeminiProVision', 'Step1V-0701', 'SenseNova-V6',
     'llava_v1_7b', 'sharegpt4v_7b', 'sharegpt4v_13b',
     'llava-v1.5-7b-xtuner', 'llava-v1.5-13b-xtuner',
     'cogvlm-grounding-generalist', 'InternVL-Chat-V1-1',
@@ -114,8 +134,11 @@ def completed(m, d, suf):
 
 
 def DLIST(lvl):
-    lst = [x[0] for x in dataset_levels[lvl]]
-    return lst
+    if lvl in dataset_levels.keys():
+        return [x[0] for x in dataset_levels[lvl]]
+    else:
+        from vlmeval.dataset import SUPPORTED_DATASETS
+        return SUPPORTED_DATASETS
 
 
 def MLIST(lvl, size='all'):
@@ -148,88 +171,108 @@ def MISSING(lvl):
 
 
 def CIRCULAR(inp):
+    def proc_str(s):
+        chs = set(s)
+        chs = [x for x in chs if x not in string.ascii_letters and x != ' ']
+        for ch in chs:
+            s = s.replace(ch, ' ')
+        return s
+
+    def abnormal_entry(line):
+        choices = {k: line[k] for k in string.ascii_uppercase if k in line and not pd.isna(line[k])}
+        has_label = False
+        for k in choices:
+            s = proc_str(choices[k]).split()
+            hit_words = [x for x in s if x in choices]
+            hit_words = set(hit_words)
+            if len(hit_words) > 1:
+                return True
+            if choices[k] in string.ascii_uppercase:
+                has_label = True
+        return has_label
+
     assert inp.endswith('.tsv')
     data = load(inp)
     OFFSET = 1e6
     while max(data['index']) >= OFFSET:
         OFFSET *= 10
-
-    assert 'E' not in data, 'Currently build_circular only works for up to 4-choice questions'
-    data_2c = data[pd.isna(data['C'])]
-    data_3c = data[~pd.isna(data['C']) & pd.isna(data['D'])]
-    data_4c = data[~pd.isna(data['D'])]
-    map_2c = [('AB', 'BA')]
-    map_3c = [('ABC', 'BCA'), ('ABC', 'CAB')]
-    map_4c = [('ABCD', 'BCDA'), ('ABCD', 'CDAB'), ('ABCD', 'DABC')]
-
-    def okn(o, n=4):
-        ostr = o.replace(',', ' ')
-        osplits = ostr.split()
-        if sum([c in osplits for c in string.ascii_uppercase[:n - 1]]) == n - 1:
-            return False
-        olower = o.lower()
-        olower = olower.replace(',', ' ')
-        olower_splits = olower.split()
-        if 'all' in olower_splits or 'none' in olower_splits:
-            return False
-        return True
-
-    yay4, nay4 = [], []
-    lt4 = len(data_4c)
-    for i in range(lt4):
-        if okn(data_4c.iloc[i]['D'], 4):
-            yay4.append(i)
+    n_opt = 2
+    for i, ch in enumerate(string.ascii_uppercase):
+        if ch in data:
+            n_opt = ord(ch) - ord('A') + 1
         else:
-            nay4.append(i)
-    data_4c_y = data_4c.iloc[yay4]
-    data_4c_n = data_4c.iloc[nay4]
-    data_3c = pd.concat([data_4c_n, data_3c])
-
-    yay3, nay3 = [], []
-    lt3 = len(data_3c)
-    for i in range(lt3):
-        if okn(data_3c.iloc[i]['C'], 3):
-            yay3.append(i)
+            for j in range(i + 1, 26):
+                assert string.ascii_uppercase[j] not in data
+    groups = defaultdict(list)
+    for i in range(len(data)):
+        item = data.iloc[i]
+        this_n_opt = 0
+        for j, ch in enumerate(string.ascii_uppercase[:n_opt]):
+            if not pd.isna(item[ch]):
+                this_n_opt = j + 1
+            else:
+                for k in range(j + 1, n_opt):
+                    assert pd.isna(item[string.ascii_uppercase[k]]), (k, item)
+        assert this_n_opt >= 2 or this_n_opt == 0
+        flag = abnormal_entry(item)
+        if flag or this_n_opt == 0:
+            groups['abnormal'].append(item)
+        elif len(item['answer']) > 1 or item['answer'] not in string.ascii_uppercase[:this_n_opt]:
+            groups['abnormal'].append(item)
         else:
-            nay3.append(i)
-    data_3c_y = data_3c.iloc[yay3]
-    data_3c_n = data_3c.iloc[nay3]
-    data_2c = pd.concat([data_3c_n, data_2c])
+            groups[this_n_opt].append(item)
+    for k in groups:
+        groups[k] = pd.concat(groups[k], axis=1).T
+        print(f'{k if k == "abnormal" else str(k) + "-choice"} records: {len(groups[k])}')
 
-    def remap(data_in, tup, off):
-        off = int(off)
-        data = data_in.copy()
-        char_map = {k: v for k, v in zip(*tup)}
-        idx = data.pop('index')
-        answer = data.pop('answer')
-        answer_new = [char_map[x] if x in char_map else x for x in answer]
-        data['answer'] = answer_new
-        options = {}
-        for c in char_map:
-            options[char_map[c]] = data.pop(c)
-        for c in options:
-            data[c] = options[c]
-        data.pop('image')
-        data['image'] = idx
-        idx = [x + off for x in idx]
-        data['index'] = idx
-        return data
+    data_all = []
 
-    data_all = pd.concat([
-        data_2c,
-        data_3c_y,
-        data_4c_y,
-        remap(data_2c, map_2c[0], OFFSET),
-        remap(data_3c_y, map_3c[0], OFFSET),
-        remap(data_4c_y, map_4c[0], OFFSET),
-        remap(data_3c_y, map_3c[1], OFFSET * 2),
-        remap(data_4c_y, map_4c[1], OFFSET * 2),
-        remap(data_4c_y, map_4c[2], OFFSET * 3),
-    ])
+    for k in groups:
+        if k == 'abnormal':
+            warnings.warn(
+                f"{len(groups['abnormal'])} abnormal entries detected. The problems can be: "
+                "1. Choice labels found in some choice contents; 2. No choices found for this question; "
+                "3. The answer is not a valid choice. Will not apply circular to those samples."
+            )
+            abdata = groups['abnormal']
+            abdata['g_index'] = abdata['index']
+            data_all.append(abdata)
+        else:
+            cir_data = []
+            assert isinstance(k, int) and k >= 2
+            labels = string.ascii_uppercase[:k]
+            rotates = [labels]
+            dq = deque(labels)
+            for i in range(k - 1):
+                dq.rotate(1)
+                rotates.append(list(dq))
+            for i, rot in enumerate(rotates):
+                if i == 0:
+                    data = groups[k].copy()
+                    data['g_index'] = data['index']
+                    cir_data.append(data)
+                else:
+                    try:
+                        data = groups[k].copy()
+                        data['index'] = [int(x + OFFSET * i) for x in data['index']]
+                        data['g_index'] = [int(x % OFFSET) for x in data['index']]
+                        data['image'] = data['g_index']
+                        c_map = {k: v for k, v in zip(rotates[0], rot)}
+                        data['answer'] = [c_map[x] for x in data['answer']]
+                        for s, t in c_map.items():
+                            data[t] = groups[k][s]
+                        cir_data.append(data)
+                    except:
+                        print(set(data['answer']))
+                        raise NotImplementedError
+            data_all.append(pd.concat(cir_data))
+    data_all = pd.concat(data_all)
+    data_all['index'] = [int(x) for x in data_all['index']]
+    data_all['g_index'] = [int(x) for x in data_all['g_index']]
 
-    tgt_file = inp.replace('.tsv', '_CIRC.tsv')
+    tgt_file = inp.replace('.tsv', '_circular.tsv')
     dump(data_all, tgt_file)
-    print(f'The circularized data is saved to {tgt_file}')
+    print(f'Processed data are saved to {tgt_file}: {len(load(inp))} raw records, {len(data_all)} circularized records.')  # noqa: E501
     assert osp.exists(tgt_file)
     print(f'The MD5 for the circularized data is {md5(tgt_file)}')
 
@@ -345,18 +388,24 @@ def RUN(lvl, model):
             os.system(cmd)
 
 
-def EVAL(dataset_name, data_file):
+def EVAL(dataset_name, data_file, **kwargs):
     from vlmeval.dataset import build_dataset
     logger = get_logger('VLMEvalKit Tool-Eval')
     dataset = build_dataset(dataset_name)
     # Set the judge kwargs first before evaluation or dumping
     judge_kwargs = {'nproc': 4, 'verbose': True}
-    if dataset.TYPE in ['MCQ', 'Y/N'] or listinstr(['MathVerse'], dataset_name):
-        judge_kwargs['model'] = 'chatgpt-0125'
-    elif listinstr(['MMVet', 'MathVista', 'LLaVABench', 'MMBench-Video', 'MathVision'], dataset_name):
-        judge_kwargs['model'] = 'gpt-4-turbo'
-    elif listinstr(['MMLongBench', 'MMDU'], dataset_name):
-        judge_kwargs['model'] = 'gpt-4o'
+    if 'model' not in kwargs:
+        if dataset.TYPE in ['MCQ', 'Y/N', 'MCQ_MMMU_Pro']:
+            judge_kwargs['model'] = 'chatgpt-0125'
+        elif listinstr(['MMVet', 'LLaVABench', 'MMBench-Video'], dataset_name):
+            judge_kwargs['model'] = 'gpt-4-turbo'
+        elif listinstr(['MMLongBench', 'MMDU'], dataset_name):
+            judge_kwargs['model'] = 'gpt-4o'
+        elif listinstr(['DynaMath', 'MathVerse', 'MathVista', 'MathVision'], dataset_name):
+            judge_kwargs['model'] = 'gpt-4o-mini'
+    else:
+        judge_kwargs['model'] = kwargs['model']
+    judge_kwargs['nproc'] = kwargs.get('nproc', 4)
     eval_results = dataset.evaluate(data_file, **judge_kwargs)
     if eval_results is not None:
         assert isinstance(eval_results, dict) or isinstance(eval_results, pd.DataFrame)
@@ -364,9 +413,128 @@ def EVAL(dataset_name, data_file):
     if isinstance(eval_results, dict):
         logger.info('\n' + json.dumps(eval_results, indent=4))
     elif isinstance(eval_results, pd.DataFrame):
-        if len(eval_results) < len(eval_results.columns):
-            eval_results = eval_results.T
-        logger.info('\n' + tabulate(eval_results))
+        logger.info('\n')
+        logger.info(tabulate(eval_results.T) if len(eval_results) < len(eval_results.columns) else eval_results)
+    return eval_results
+
+
+def parse_args_eval():
+    parser = argparse.ArgumentParser()
+    # Essential Args, Setting the Names of Datasets and Models
+    parser.add_argument('cmd', type=str)
+    parser.add_argument('data_file', type=str)
+    parser.add_argument('--judge', type=str, default=None)
+    parser.add_argument('--api-nproc', type=int, default=4)
+    parser.add_argument('--retry', type=int, default=None)
+    args = parser.parse_args()
+    return args
+
+
+def parse_args_scan():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model', type=str, nargs='+')
+    parser.add_argument('--data', type=str, nargs='+')
+    parser.add_argument('--root', type=str, default=None)
+    args, unknownargs = parser.parse_known_args()
+    return args, unknownargs
+
+
+def parse_args_sync():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--src', type=str, default='/home/kenny/mmeval')
+    parser.add_argument('--tgt', type=str, default='/home/kenny/volc/mmeval')
+    parser.add_argument('--data', type=str, nargs='+')
+    args, unknownargs = parser.parse_known_args()
+    return args, unknownargs
+
+
+def MERGE_PKL(pkl_dir, world_size=1):
+    prefs = []
+    for ws in list(range(1, 9)):
+        prefs.extend([f'{i}{ws}_' for i in range(ws)])
+    prefs = set(prefs)
+    files = os.listdir(pkl_dir)
+    files = [x for x in files if x[:3] in prefs]
+    # Merge the files
+    res_all = defaultdict(dict)
+    for f in files:
+        full_path = osp.join(pkl_dir, f)
+        key = f[3:]
+        res_all[key].update(load(full_path))
+        os.remove(full_path)
+
+    dump_prefs = [f'{i}{world_size}_' for i in range(world_size)]
+    for k in res_all:
+        for pf in dump_prefs:
+            dump(res_all[k], f'{pkl_dir}/{pf}{k}')
+        print(f'Merged {len(res_all[k])} records into {pkl_dir}/{dump_prefs[0]}{k}')
+
+
+def SCAN_ONE(root, model, dataset):
+    from termcolor import colored
+    FAIL_MSG = 'Failed to obtain answer via API.'
+    root = osp.join(root, model)
+    fname = f'{model}_{dataset}.xlsx'
+    pth = osp.join(root, fname)
+    if osp.exists(pth):
+        data = load(pth)
+        # Detect Failure
+        assert 'prediction' in data
+        data['prediction'] = [str(x) for x in data['prediction']]
+        fail = [FAIL_MSG in x for x in data['prediction']]
+        if sum(fail):
+            nfail = sum(fail)
+            ntot = len(fail)
+            print(colored(f'Model {model} x Dataset {dataset} Inference: {nfail} out of {ntot} failed. {nfail / ntot * 100: .2f}%. ', 'light_red'))  # noqa: E501
+
+        eval_files = ls(root, match=f'{model}_{dataset}_')
+        eval_files = [x for x in eval_files if listinstr([f'{dataset}_openai', f'{dataset}_gpt'], x) and x.endswith('.xlsx')]  # noqa: E501
+
+        if len(eval_files) == 0:
+            return
+
+        for eval_file in eval_files:
+            data = load(eval_file)
+
+            if 'MMVet' in dataset:
+                bad = [x for x in data['log'] if 'All 5 retries failed.' in str(x)]
+                if len(bad):
+                    print(f'Evaluation ({eval_file}): {len(bad)} out of {len(data)} failed.')
+            elif 'MathVista' in dataset:
+                bad = [x for x in data['res'] if FAIL_MSG in str(x)]
+                if len(bad):
+                    print(f'Evaluation ({eval_file}): {len(bad)} out of {len(data)} failed.')
+            elif dataset == 'LLaVABench':
+                sub = data[data['gpt4_score'] == -1]
+                sub = sub[sub['gpt4_score'] == -1]
+                if len(sub):
+                    print(f'Evaluation ({eval_file}): {len(sub)} out of {len(data)} failed.')
+            else:
+                if 'log' in data:
+                    bad = [x for x in data['log'] if FAIL_MSG in str(x)]
+                    if len(bad):
+                        print(f'Evaluation ({eval_file}): {len(bad)} out of {len(data)} failed.')
+    else:
+        print(colored(f'Model {model} x Dataset {dataset} Inference Result Missing! ', 'red'))
+
+
+def SCAN(root, models, datasets):
+    for m in models:
+        if not osp.exists(osp.join(root, m)):
+            warnings.warn(f'Model {m} not found in {root}')
+            continue
+        cur_datasets = []
+        if len(datasets) == 0:
+            for d in SUPPORTED_DATASETS:
+                if osp.exists(osp.join(root, m, f'{m}_{d}.xlsx')):
+                    cur_datasets.append(d)
+        else:
+            cur_datasets = datasets
+        cur_datasets = list(set(cur_datasets))
+        cur_datasets.sort()
+        for d in cur_datasets:
+            SCAN_ONE(root, m, d)
+        print(colored(f'Finished scanning datasets {cur_datasets} for model {m}.', 'green'))
 
 
 def cli():
@@ -375,53 +543,88 @@ def cli():
     if not args:  # no arguments passed
         logger.info(CLI_HELP_MSG)
         return
-    if args[0].lower() in MODES:
-        if args[0].lower() == 'dlist':
-            assert len(args) >= 2
-            lst = DLIST(args[1])
-            print(' '.join(lst))
-        elif args[0].lower() == 'mlist':
-            assert len(args) >= 2
-            size = 'all'
-            if len(args) > 2:
-                size = args[2].lower()
-            lst = MLIST(args[1], size)
-            print('\n'.join(lst))
-        elif args[0].lower() == 'missing':
-            assert len(args) >= 2
-            missing_list = MISSING(args[1])
-            logger = get_logger('Find Missing')
-            logger.info(colored(f'Level {args[1]} Missing Results: ', 'red'))
-            lines = []
-            for m, D in missing_list:
-                line = f'Model {m}, Dataset {D}'
-                logger.info(colored(line, 'red'))
-                lines.append(line)
-            mwlines(lines, f'{args[1]}_missing.txt')
-        elif args[0].lower() == 'circular':
-            assert len(args) >= 2
-            CIRCULAR(args[1])
-        elif args[0].lower() == 'localize':
-            assert len(args) >= 2
-            LOCALIZE(args[1])
-        elif args[0].lower() == 'check':
-            assert len(args) >= 2
-            model_list = args[1:]
-            for m in model_list:
-                CHECK(m)
-        elif args[0].lower() == 'run':
-            assert len(args) >= 2
-            lvl = args[1]
-            if len(args) == 2:
-                model = 'all'
+
+    if args[0].lower() == 'dlist':
+        assert len(args) >= 2
+        lst = DLIST(args[1])
+        print(' '.join(lst))
+    elif args[0].lower() == 'mlist':
+        assert len(args) >= 2
+        size = 'all'
+        if len(args) > 2:
+            size = args[2].lower()
+        lst = MLIST(args[1], size)
+        print('\n'.join(lst))
+    elif args[0].lower() == 'missing':
+        assert len(args) >= 2
+        missing_list = MISSING(args[1])
+        logger = get_logger('Find Missing')
+        logger.info(colored(f'Level {args[1]} Missing Results: ', 'red'))
+        lines = []
+        for m, D in missing_list:
+            line = f'Model {m}, Dataset {D}'
+            logger.info(colored(line, 'red'))
+            lines.append(line)
+        mwlines(lines, f'{args[1]}_missing.txt')
+    elif args[0].lower() == 'circular':
+        assert len(args) >= 2
+        CIRCULAR(args[1])
+    elif args[0].lower() == 'localize':
+        assert len(args) >= 2
+        LOCALIZE(args[1])
+    elif args[0].lower() == 'check':
+        assert len(args) >= 2
+        model_list = args[1:]
+        for m in model_list:
+            CHECK(m)
+    elif args[0].lower() == 'run':
+        assert len(args) >= 2
+        lvl = args[1]
+        if len(args) == 2:
+            model = 'all'
+            RUN(lvl, model)
+        else:
+            for model in args[2:]:
                 RUN(lvl, model)
+    elif args[0].lower() == 'eval':
+        args = parse_args_eval()
+        data_file = args.data_file
+
+        def extract_dataset(file_name):
+            fname = osp.splitext(file_name)[0].split('/')[-1]
+            parts = fname.split('_')
+            for i in range(len(parts)):
+                if '_'.join(parts[i:]) in SUPPORTED_DATASETS:
+                    return '_'.join(parts[i:])
+            return None
+
+        dataset = extract_dataset(data_file)
+        assert dataset is not None, f'Cannot infer dataset name from {data_file}'
+        kwargs = {'nproc': args.api_nproc}
+        if args.judge is not None:
+            kwargs['model'] = args.judge
+        if args.retry is not None:
+            kwargs['retry'] = args.retry
+        EVAL(dataset_name=dataset, data_file=data_file, **kwargs)
+    elif args[0].lower() == 'merge_pkl':
+        assert len(args) == 3
+        args[2] = int(args[2])
+        assert args[2] in [1, 2, 4, 8]
+        MERGE_PKL(args[1], args[2])
+    elif args[0].lower() == 'scan':
+        args, unknownargs = parse_args_scan()
+        # The default value is only for the maintainer usage
+        root = args.root if args.root is not None else os.getcwd()
+        models = []
+        for m in args.model:
+            if osp.exists(m) and m.endswith('.txt'):
+                lines = mrlines(m)
+                models.extend([x.split()[0] for x in lines if len(x.split()) >= 1])
             else:
-                for model in args[2:]:
-                    RUN(lvl, model)
-        elif args[0].lower() == 'eval':
-            assert len(args) == 3
-            dataset, data_file = args[1], args[2]
-            EVAL(dataset, data_file)
+                models.append(m)
+        assert len(models)
+        datasets = args.data
+        SCAN(root, models, datasets if datasets is not None else [])
     else:
         logger.error('WARNING: command error!')
         logger.info(CLI_HELP_MSG)

@@ -4,6 +4,8 @@ from ..smp import *
 
 
 def img_root_map(dataset):
+    if 'MM_NIAH' in dataset:
+        return 'MMNIAH'
     if 'CRPE' in dataset:
         return 'CRPE'
     if 'OCRVQA' in dataset:
@@ -12,6 +14,9 @@ def img_root_map(dataset):
         return 'COCO'
     if 'MMMU' in dataset:
         return 'MMMU'
+    if "QSpatial" in dataset:
+        return "QSpatial"
+
     mmbench_root_map = {
         'MMBench_DEV_EN': 'MMBench', 'MMBench_TEST_EN': 'MMBench',
         'MMBench_DEV_CN': 'MMBench', 'MMBench_TEST_CN': 'MMBench',
@@ -82,7 +87,8 @@ class ImageBaseDataset:
         update_flag = False
         file_name = url.split('/')[-1]
         data_path = osp.join(data_root, file_name)
-        if osp.exists(data_path):#and (file_md5 is None or md5(data_path) == file_md5):
+        self.data_path = data_path
+        if osp.exists(data_path) and (file_md5 is None or md5(data_path) == file_md5):
             pass
         else:
             warnings.warn('The dataset tsv is not downloaded')
@@ -103,12 +109,23 @@ class ImageBaseDataset:
         if 'image' in line:
             if isinstance(line['image'], list):
                 tgt_path = []
-                assert 'image_path' in line
-                for img, im_name in zip(line['image'], line['image_path']):
+                if 'image_path' in line:
+                    image_path = line['image_path']
+                else:
+                    index = line['index']
+                    image_path = [f'{index}_{i}.png' for i in range(len(line['image']))]
+                for img, im_name in zip(line['image'], image_path):
                     path = osp.join(self.img_root, im_name)
                     if not read_ok(path):
                         decode_base64_to_image_file(img, path)
                     tgt_path.append(path)
+
+            elif isinstance(line['image'], str) and 'image_path' in line:
+                assert isinstance(line['image_path'], str)
+                tgt_path = osp.join(self.img_root, line['image_path'])
+                if not read_ok(tgt_path):
+                    decode_base64_to_image_file(line['image'], tgt_path)
+                tgt_path = [tgt_path]
             else:
                 tgt_path = osp.join(self.img_root, f"{line['index']}.jpg")
                 if not read_ok(tgt_path):
@@ -117,6 +134,13 @@ class ImageBaseDataset:
         else:
             assert 'image_path' in line
             tgt_path = toliststr(line['image_path'])
+            read_ok_flag = [read_ok(x) for x in tgt_path]
+            # Might be the Relative Path
+            if not all(read_ok_flag):
+                tgt_path_abs = [osp.join(self.img_root, x) for x in tgt_path]
+                read_ok_flag = [read_ok(x) for x in tgt_path_abs]
+                assert read_ok_flag, f"Field `image` is missing and we could not find {tgt_path} both as absolute or relative paths. "  # noqa
+                tgt_path = tgt_path_abs
 
         return tgt_path
 
@@ -133,7 +157,9 @@ class ImageBaseDataset:
 
     # Given the dataset name, return the dataset as a pandas dataframe, can override
     def load_data(self, dataset):
-        url = self.DATASET_URL[dataset]
+        url = self.DATASET_URL.get(dataset, None)
+        if url is None or url == '':
+            url = dataset + '.tsv'
         file_md5 = self.DATASET_MD5[dataset] if dataset in self.DATASET_MD5 else None
         return self.prepare_tsv(url, file_md5)
 
