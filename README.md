@@ -5,18 +5,20 @@
 **LLaVA-UHD-v3: PROGRESSIVE VISUAL COMPRES-SION FOR EFFICIENT NAIVE-RESOLUTION ENCODING IN MLLMS**
 
 <p align="center">
-🤗 <a href="https://huggingface.co/Sishxo/LLaVA-UHD-v3"> HuggingFace Models</a>&nbsp&nbsp | &nbsp&nbsp📄 <a href="https://arxiv.org/abs/2403.11703">Arxiv</a>
+🤗 <a href="https://huggingface.co/Sishxo/LLaVA-UHD-v3"> HuggingFace Models</a>&nbsp&nbsp | &nbsp&nbsp📄 <a href="https://arxiv.org/abs/2511.21150">Arxiv</a>
 </p>
 </div>
 
 
 
-This repository hosts the code, data of **LLaVA-UHD-v3**, a multimodal large language model (MLLM) built upon our proposed Progressive Visual Compression (PVC) for efficient naive-resolution encoding. Our model not only achieves performance comparable to advanced MLLMs like Qwen2-VL across 15 diverse benchmarks but also delivers a 1.9x reduction in Time-to-First-Token (TTFT). Moreover, LLaVA-UHD v3 can be trained efficiently in academic settings, requiring approximately 300 hours on 32 A100 GPUs. For more details, please visit our 📃 [paper](https://arxiv.org/abs/2403.11703) here
+This repository hosts the code, data of **LLaVA-UHD-v3**, a multimodal large language model (MLLM) built upon our proposed Progressive Visual Compression (PVC) for efficient naive-resolution encoding. Our model not only achieves performance comparable to advanced MLLMs like Qwen2-VL across 15 diverse benchmarks but also delivers a 1.9x reduction in Time-to-First-Token (TTFT). Moreover, LLaVA-UHD v3 can be trained efficiently in academic settings, requiring approximately 300 hours on 32 A100 GPUs. For more details, please visit our 📃 [paper](https://arxiv.org/abs/2511.21150) here
 
 ## News
--[2025/11/05] 🧠The Pilot experiment related code of LLaVA-UHD-v3 and benchmark mentioned in the paper are available on [huggingface](https://huggingface.co/datasets/ZzzHelloWorld/LLaVA-UHD-v3_Pilot_experiment).The checkpoints for global naive-resolution visual encoding GNE and slice-based encoding SBE have also been released.
+-[2025/11/27] 🧠The Pilot experiment related code of LLaVA-UHD-v3 and benchmark mentioned in the paper are available on [huggingface](https://huggingface.co/datasets/ZzzHelloWorld/LLaVA-UHD-v3_Pilot_experiment).The checkpoints for global naive-resolution visual encoding GNE and slice-based encoding SBE have also been released.
 
--[2025/11/05] 🔥**LLaVA-UHD v3** achieves a superior trade-off between efficiency and performance across 15 diverse benchmarks. Our novel vision encoder, ViT-UHD with Progressive Visual Compression (PVC), enables efficient naive-resolution encoding, significantly reducing latency while maintaining competitive performance. Model checkpoints are available in [huggingface](https://huggingface.co/Sishxo/LLaVA-UHD-v3).
+-[2025/11/27] 🔥**LLaVA-UHD v3** achieves a superior trade-off between efficiency and performance across 15 diverse benchmarks. Our novel vision encoder, ViT-UHD with Progressive Visual Compression (PVC), enables efficient naive-resolution encoding, significantly reducing latency while maintaining competitive performance. Model checkpoints are available in [huggingface](https://huggingface.co/Sishxo/LLaVA-UHD-v3).
+
+-[2025/11/08] 📢🔥 LLaVA-UHD v2 is accepted by AAAI-26.
 
 -[2025/04/01] 🔥We released new checkpoints of LLaVA-UHD v2 based on [Qwen2.0-7B-instruct](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B) and [Vicuna-13B](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Vicuna-13B).
 
@@ -169,11 +171,14 @@ We provide the same script to complete the testing.
 
 If you find LLaVA-UHD-v3 useful for your research and applications, please cite using this BibTeX:
 ```bibtex
-@inproceedings{guo2024llava-uhd,
-  title={{LLaVA-UHD}: an LMM Perceiving Any Aspect Ratio and High-Resolution Images},
-  author={Guo, Zonghao and Xu, Ruyi and Yao, Yuan and Cui, Junbo and Ni, Zanlin and Ge, Chunjiang and Chua, Tat-Seng and Liu, Zhiyuan and Huang, Gao},
-  booktitle={ECCV},
-  year={2024}
+@misc{sun2025llavauhdv3progressivevisual,
+      title={LLaVA-UHD v3: Progressive Visual Compression for Efficient Native-Resolution Encoding in MLLMs}, 
+      author={Shichu Sun and Yichen Zhang and Haolin Song and Zonghao Guo and Chi Chen and Yidan Zhang and Yuan Yao and Zhiyuan Liu and Maosong Sun},
+      year={2025},
+      eprint={2511.21150},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2511.21150}, 
 }
 @article{zhang2024llavauhdv2,
   title={LLaVA-UHD v2: an MLLM Integrating High-Resolution Feature Pyramid via Hierarchical Window Transformer},
@@ -181,13 +186,11 @@ If you find LLaVA-UHD-v3 useful for your research and applications, please cite 
   journal={arXiv preprint arXiv:2412.13871},
   year={2024}
 }
-@inproceedings{anonymous2025llavauhd,
-  title={{LL}a{VA}-{UHD} v3: Progressive Visual Compression for Efficient Naive-Resolution Encoding in {MLLM}s},
-  author={Anonymous},
-  booktitle={Submitted to The Fourteenth International Conference on Learning Representations},
-  year={2025},
-  url={https://openreview.net/forum?id=T4pK6ByRit},
-  note={under review}
+@inproceedings{guo2024llava-uhd,
+  title={{LLaVA-UHD}: an LMM Perceiving Any Aspect Ratio and High-Resolution Images},
+  author={Guo, Zonghao and Xu, Ruyi and Yao, Yuan and Cui, Junbo and Ni, Zanlin and Ge, Chunjiang and Chua, Tat-Seng and Liu, Zhiyuan and Huang, Gao},
+  booktitle={ECCV},
+  year={2024}
 }
 ```
 
