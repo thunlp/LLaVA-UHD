@@ -18,7 +18,7 @@ This repository hosts the code, data of **LLaVA-UHD-v3**, a multimodal large lan
 
 -[2025/11/27] 🔥**LLaVA-UHD v3** achieves a superior trade-off between efficiency and performance across 15 diverse benchmarks. Our novel vision encoder, ViT-UHD with Progressive Visual Compression (PVC), enables efficient naive-resolution encoding, significantly reducing latency while maintaining competitive performance. Model checkpoints are available in [huggingface](https://huggingface.co/Sishxo/LLaVA-UHD-v3).
 
--[2025/11/08] 📢🔥 LLaVA-UHD v2 is accepted by AAAI-26.
+-[2025/11/08] 📢🔥 LLaVA-UHD v2 is accepted by [AAAI-26](https://arxiv.org/abs/2412.13871).
 
 -[2025/04/01] 🔥We released new checkpoints of LLaVA-UHD v2 based on [Qwen2.0-7B-instruct](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Qwen2.0-7B) and [Vicuna-13B](https://huggingface.co/YipengZhang/LLaVA-UHD-v2-Vicuna-13B).
 
