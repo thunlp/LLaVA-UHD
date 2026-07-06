@@ -2,7 +2,7 @@
   
 ![The LLaVA-UHD-v3 Logo](figs/github_banner_puretext.png)
 
-**LLaVA-UHD-v3: PROGRESSIVE VISUAL COMPRES-SION FOR EFFICIENT NAIVE-RESOLUTION ENCODING IN MLLMS**
+**LLaVA-UHD-v3: PROGRESSIVE VISUAL COMPRESSION FOR EFFICIENT NAIVE-RESOLUTION ENCODING IN MLLMS**
 
 <p align="center">
 🤗 <a href="https://huggingface.co/Sishxo/LLaVA-UHD-v3"> HuggingFace Models</a>&nbsp&nbsp | &nbsp&nbsp📄 <a href="https://arxiv.org/abs/2511.21150">Arxiv</a>
