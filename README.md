@@ -14,6 +14,8 @@
 This repository hosts the code, data of **LLaVA-UHD-v3**, a multimodal large language model (MLLM) built upon our proposed Progressive Visual Compression (PVC) for efficient naive-resolution encoding. Our model not only achieves performance comparable to advanced MLLMs like Qwen2-VL across 15 diverse benchmarks but also delivers a 1.9x reduction in Time-to-First-Token (TTFT). Moreover, LLaVA-UHD v3 can be trained efficiently in academic settings, requiring approximately 300 hours on 32 A100 GPUs. For more details, please visit our 📃 [paper](https://arxiv.org/abs/2511.21150) here
 
 ## News
+-[2026/06/30] 📢🔥 LLaVA-UHD v3 is accepted by [ECCV-26](https://arxiv.org/abs/2511.21150).
+
 -[2025/11/27] 🧠The Pilot experiment related code of LLaVA-UHD-v3 and benchmark mentioned in the paper are available on [huggingface](https://huggingface.co/datasets/ZzzHelloWorld/LLaVA-UHD-v3_Pilot_experiment).The checkpoints for global naive-resolution visual encoding GNE and slice-based encoding SBE have also been released.
 
 -[2025/11/27] 🔥**LLaVA-UHD v3** achieves a superior trade-off between efficiency and performance across 15 diverse benchmarks. Our novel vision encoder, ViT-UHD with Progressive Visual Compression (PVC), enables efficient naive-resolution encoding, significantly reducing latency while maintaining competitive performance. Model checkpoints are available in [huggingface](https://huggingface.co/Sishxo/LLaVA-UHD-v3).
